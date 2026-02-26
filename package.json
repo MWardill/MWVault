@@ -12,6 +12,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.34.3",
     "next": "16.1.6",
+    "next-view-transitions": "^0.3.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "use-sound": "^5.0.0"
