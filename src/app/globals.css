@@ -1,26 +1,177 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap");
 
+/* ─── Design Tokens ──────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:          #07080f;
+  --bg-panel:    #0d1117;
+  --bg-card:     #111827;
+
+  --green:       #00ff41;
+  --green-dim:   #00b32d;
+  --cyan:        #00d4ff;
+  --cyan-dim:    #0099bb;
+  --amber:       #ffb000;
+  --amber-dim:   #c48000;
+  --magenta:     #ff00ff;
+  --red:         #ff3333;
+
+  --text-primary:   var(--green);
+  --text-secondary: var(--cyan);
+  --text-muted:     #4a5568;
+  --text-white:     #e2e8f0;
+
+  --border:      rgba(0, 255, 65, 0.25);
+  --border-glow: rgba(0, 255, 65, 0.6);
+
+  --font-pixel:  "Press Start 2P", monospace;
+  --font-mono:   "Share Tech Mono", monospace;
+
+  --scanline-opacity: 0.04;
+  --glow-green:  0 0 8px #00ff41, 0 0 20px rgba(0,255,65,0.4);
+  --glow-cyan:   0 0 8px #00d4ff, 0 0 20px rgba(0,212,255,0.4);
+  --glow-amber:  0 0 8px #ffb000, 0 0 20px rgba(255,176,0,0.4);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --color-foreground: var(--text-primary);
+  --font-sans: var(--font-mono);
+  --font-mono: var(--font-pixel);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+  scrollbar-color: var(--green-dim) var(--bg-panel);
+  scrollbar-width: thin;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
+
+/* ─── CRT Scanlines Overlay ──────────────────────────────────── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 2px,
+    rgba(0, 0, 0, var(--scanline-opacity)) 4px
+  );
+}
+
+/* CRT screen curvature vignette */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+}
+
+/* ─── Typography ─────────────────────────────────────────────── */
+.font-pixel       { font-family: var(--font-pixel); }
+.font-mono-retro  { font-family: var(--font-mono); }
+.text-neon-green  { color: var(--green); text-shadow: var(--glow-green); }
+.text-neon-cyan   { color: var(--cyan);  text-shadow: var(--glow-cyan); }
+.text-neon-amber  { color: var(--amber); text-shadow: var(--glow-amber); }
+
+/* ─── Blinking Cursor ────────────────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cursor-blink::after {
+  content: "█";
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+  color: var(--green);
+}
+
+/* ─── Flicker Animation ──────────────────────────────────────── */
+@keyframes flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96%           { opacity: 0.8; }
+  97%           { opacity: 1; }
+  98%           { opacity: 0.6; }
+  99%           { opacity: 1; }
+}
+.flicker { animation: flicker 8s infinite; }
+
+/* ─── Neon Pulse ─────────────────────────────────────────────── */
+@keyframes neon-pulse {
+  0%, 100% { text-shadow: var(--glow-green); }
+  50%       { text-shadow: 0 0 16px #00ff41, 0 0 40px rgba(0,255,65,0.7); }
+}
+.neon-pulse { animation: neon-pulse 2s ease-in-out infinite; }
+
+/* ─── Card / Panel ───────────────────────────────────────────── */
+.retro-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 0 30px rgba(0,255,65,0.03), 0 0 0 1px rgba(0,255,65,0.08);
+}
+
+.retro-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.retro-card:hover {
+  border-color: var(--green);
+  box-shadow: var(--glow-green), inset 0 0 20px rgba(0,255,65,0.05);
+}
+
+/* ─── Button ─────────────────────────────────────────────────── */
+.retro-btn {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 12px 20px;
+  background: transparent;
+  border: 2px solid var(--green);
+  color: var(--green);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+  image-rendering: pixelated;
+}
+.retro-btn:hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: var(--glow-green);
+}
+.retro-btn:active {
+  background: rgba(0, 255, 65, 0.2);
+  transform: translateY(1px);
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--bg-panel); }
+::-webkit-scrollbar-thumb  { background: var(--green-dim); border-radius: 0; }
