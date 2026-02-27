@@ -71,7 +71,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
                             Mat Wardill Collection v1.0
                         </div>
 
-                        {children}
+                        <div className="stippled jrpg-panel flex-1 flex flex-col pt-3 pb-6 px-4 md:pr-46 lg:pr-58 relative">
+                            {children}
+                        </div>
                     </div>
                 </motion.div>
 
@@ -79,7 +81,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <MobileMenu items={menuItems} currentRouteId={currentRouteId} />
 
                 {/* Right Pane: Navigation & Info (Desktop) */}
-                <div className="hidden lg:flex flex-col absolute -top-6 -right-12 z-20">
+                <div className="hidden lg:flex flex-col absolute -right-12 z-20">
                     <FloatingPanel viewTransitionName="menu-panel">
                         <JrpgMenuList
                             items={menuItems}

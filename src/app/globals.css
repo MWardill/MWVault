@@ -199,3 +199,15 @@ body {
     opacity: 0;
   }
 }
+
+@keyframes scalePulse {
+
+  0%,
+  100% {
+    transform: scale(1.15);
+  }
+
+  50% {
+    transform: scale(0.95);
+  }
+}
