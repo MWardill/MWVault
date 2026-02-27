@@ -24,7 +24,7 @@ export function JrpgMenuList({ items, selectedIndex, onHover }: MenuListProps) {
                     <li
                         key={item.id}
                         className={clsx(
-                            "relative group flex items-center py-3 px-2 cursor-pointer transition-colors",
+                            "relative group flex items-center cursor-pointer transition-colors",
                             item.disabled ? "opacity-50" : "hover:text-[#ffffff]"
                         )}
                         onMouseEnter={() => !item.disabled && onHover(i)}

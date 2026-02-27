@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Press_Start_2P, Share_Tech_Mono } from "next/font/google";
+import { Press_Start_2P, Share_Tech_Mono, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
-import { AppShell } from "@/components/layout";
+import AppShell from "@/components/layout/AppShell";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -10,6 +10,14 @@ const pressStart2P = Press_Start_2P({
   variable: "--font-press-start-2p",
   display: "swap",
 });
+
+
+// const pressStart2P = VT323({
+//   weight: "400",
+//   subsets: ["latin"],
+//   variable: "--font-press-start-2p",
+//   display: "swap",
+// });
 
 const shareTechMono = Share_Tech_Mono({
   weight: "400",
@@ -31,8 +39,8 @@ export default function RootLayout({
 }>) {
   return (
     <ViewTransitions>
-      <html lang="en">
-        <body className={`${pressStart2P.variable} ${shareTechMono.variable} antialiased`}>
+      <html lang="en" className={`${pressStart2P.variable} ${shareTechMono.variable}`}>
+        <body className="antialiased">
           <AppShell>{children}</AppShell>
         </body>
       </html>

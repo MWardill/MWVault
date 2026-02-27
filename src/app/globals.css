@@ -30,15 +30,6 @@
   --font-mono: var(--font-mono);
 }
 
-/* ─── Reset & Base ───────────────────────────────────────────── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 html {
   background-color: var(--bg-desktop);
   /* A dark textured background to feel like we paused on the world map */
@@ -78,10 +69,8 @@ body {
 /* This recreates the classic double-bordered blue translucent menu */
 .jrpg-panel {
   position: relative;
-  padding: 20px;
   border-radius: 12px;
   color: white;
-  font-family: sans-serif;
 
   /* Base gradient */
   background: linear-gradient(145deg,
@@ -114,30 +103,28 @@ body {
   pointer-events: none;
 }
 
-
-/* Fine grain overlay */
+/* Fine stipple / dither overlay (FIXED) */
 .jrpg-panel::after {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
 
+  /* Two-layer offset dot grid for a subtle PS1/JRPG stipple */
   background-image:
-    repeating-radial-gradient(circle at 0 0,
-      rgba(255, 255, 255, 0.04) 0px,
-      rgba(255, 255, 255, 0.04) 1px,
-      transparent 1px,
-      transparent 3px);
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 4px 4px, 4px 4px;
+  background-position: 0 0, 2px 2px;
 
   opacity: 0.35;
-  pointer-events: none;
+  mix-blend-mode: overlay;
 }
 
 .jrpg-panel>* {
   position: relative;
   z-index: 10;
 }
-
-
 
 /* ─── Selection Hand Cursor ──────────────────────────────────── */
 /* Recreates the classic floating white glove */
@@ -176,8 +163,8 @@ body {
 }
 
 /* ─── Page Transitions ──────────────────────────────────────── */
-
-::view-transition-group(menu-panel) {
+::view-transition-group(menu-panel),
+::view-transition-group(test-panel) {
   z-index: 50;
 }
 

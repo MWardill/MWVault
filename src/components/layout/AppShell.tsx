@@ -1,33 +1,60 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { JrpgMenuList } from "@/components/JrpgMenuList";
 import { useTransitionRouter } from "next-view-transitions";
+import { FloatingPanel } from "./FloatingPanel";
+import { Clock } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { MobileMenu } from "./MobileMenu";
 
 const MENU_ITEMS = [
-    { id: "item", label: "Item", description: "Use or sort acquired items." },
+    { id: "item", label: "Item", description: "Use or sort acquired items.", isMobileCore: true },
     { id: "magic", label: "Magic", description: "Cast recovery magic or view spell lists.", disabled: true },
     { id: "equip", label: "Equip", description: "Change character weapons and armor.", disabled: true },
     { id: "status", label: "Status", description: "Check character parameters.", disabled: true },
     { id: "order", label: "Order", description: "Change the party formation.", disabled: true },
-    { id: "vault", label: "Vault", description: "Access your complete video game collection." },
+    { id: "vault", label: "Vault", description: "Access your complete video game collection.", isMobileCore: true },
     { id: "config", label: "Config", description: "Change window color and game settings.", disabled: true },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
+    const pathname = usePathname();
+    const currentRouteId = pathname?.split("/")[1] || "vault";
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [activeCard, setActiveCard] = useState<string | null>(null);
+    const [timeStr, setTimeStr] = useState("00:00:00");
+
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            setTimeStr(`${hours}:${minutes}:${seconds}`);
+        };
+        updateTime();
+        const interval = setInterval(updateTime, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     // Handle main menu selection
-    const handleMenuClick = (id: string) => {
+    const handleMenuClick = useCallback((id: string) => {
         router.push(`/${id}`);
-    };
+    }, [router]);
+
+    // Memoize the mapped items array to prevent unneeded re-renders on layout state change
+    const menuItems = useMemo(() => MENU_ITEMS.map((item) => ({
+        ...item,
+        onClick: () => handleMenuClick(item.id)
+    })), [handleMenuClick]);
 
     return (
-        <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center ">
+        <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center lg:pt-0">
             <main className="w-full max-w-6xl mx-auto h-[85vh] min-h-[600px] relative">
+
 
                 {/* Left Pane: Main Content */}
                 <motion.div
@@ -36,33 +63,63 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0 flex flex-col gap-4 w-full h-full pr-2 custom-scrollbar z-0"
                 >
+
+
                     <div style={{ viewTransitionName: 'main-panel' }} className="flex flex-col gap-4 w-full h-full">
+                        {/* Header Row */}
+                        <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-x-12 border-b-2 border-slate-100/30">
+                            Mat Wardill Collection v1.0
+                        </div>
+
                         {children}
                     </div>
                 </motion.div>
 
-                {/* Right Pane: Navigation & Info */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
-                    className="absolute top-0 lg:-top-6 right-0 lg:-right-12 w-48 flex flex-col gap-4 shrink-0 z-10"
-                    style={{ viewTransitionName: 'menu-panel' }}
-                >
-                    {/* Main Menu Box */}
-                    <div className="jrpg-panel">
+                {/* Mobile Navigation Component */}
+                <MobileMenu items={menuItems} currentRouteId={currentRouteId} />
+
+                {/* Right Pane: Navigation & Info (Desktop) */}
+                <div className="hidden lg:flex flex-col absolute -top-6 -right-12 z-20">
+                    <FloatingPanel viewTransitionName="menu-panel">
                         <JrpgMenuList
-                            items={MENU_ITEMS.map((item, i) => ({
-                                ...item,
-                                onClick: () => handleMenuClick(item.id)
-                            }))}
+                            items={menuItems}
                             selectedIndex={selectedIndex}
                             onHover={setSelectedIndex}
                         />
-                    </div>
+                    </FloatingPanel>
+                </div>
 
-                </motion.div>
+                <div className="hidden lg:flex absolute bottom-4 -right-12 flex-col gap-6 w-[280px] z-10">
+                    <FloatingPanel
+                        className="w-full relative"
+                        viewTransitionName="time-panel"
+                        title="Time & Games"
+                    >
+                        <div className="flex flex-col gap-3 font-pixel text-right w-full">
+                            <div className="flex items-center justify-between">
+                                <Clock className="w-5 h-5 text-gray-300 drop-shadow-md" />
+                                <span className="text-xl tracking-widest text-gray-100 jrpg-text-shadow leading-none">{timeStr}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="w-5 h-5 rounded-full bg-gray-400 bg-opacity-30 border-2 border-gray-300 flex items-center justify-center text-[10px] font-bold text-gray-200 drop-shadow-md">
+                                    G
+                                </div>
+                                <span className="text-xl tracking-widest text-gray-100 jrpg-text-shadow leading-none">257G</span>
+                            </div>
+                        </div>
+                    </FloatingPanel>
+
+                    <FloatingPanel
+                        className="w-full relative"
+                        viewTransitionName="location-panel"
+                        title="Location"
+                    >
+                        <div className="font-pixel text-base text-gray-100 jrpg-text-shadow w-full text-center">
+                            Conde Petie/Entrance
+                        </div>
+                    </FloatingPanel>
+                </div>
             </main>
-        </div >
+        </div>
     );
 }
