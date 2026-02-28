@@ -2,10 +2,10 @@
 
 import { ReactNode, useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { JrpgMenuList } from "@/components/JrpgMenuList";
+import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
 import { useTransitionRouter } from "next-view-transitions";
 import { FloatingPanel } from "./FloatingPanel";
-import { Clock } from "lucide-react";
+import { GameClock } from "@/components/ui/GameClock";
 import { usePathname } from "next/navigation";
 import { MobileMenu } from "./MobileMenu";
 
@@ -22,23 +22,9 @@ const MENU_ITEMS = [
 export default function AppShell({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
     const pathname = usePathname();
-    const currentRouteId = pathname?.split("/")[1] || "vault";
+    const currentRouteId = pathname?.split("/")[1] || "item";
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [activeCard, setActiveCard] = useState<string | null>(null);
-    const [timeStr, setTimeStr] = useState("00:00:00");
-
-    useEffect(() => {
-        const updateTime = () => {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            setTimeStr(`${hours}:${minutes}:${seconds}`);
-        };
-        updateTime();
-        const interval = setInterval(updateTime, 1000);
-        return () => clearInterval(interval);
-    }, []);
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
@@ -98,10 +84,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                         title="Time & Games"
                     >
                         <div className="flex flex-col gap-3 font-pixel text-right w-full">
-                            <div className="flex items-center justify-between">
-                                <Clock className="w-5 h-5 text-gray-300 drop-shadow-md" />
-                                <span className="text-xl tracking-widest text-gray-100 jrpg-text-shadow leading-none">{timeStr}</span>
-                            </div>
+                            <GameClock />
                             <div className="flex items-center justify-between">
                                 <div className="w-5 h-5 rounded-full bg-gray-400 bg-opacity-30 border-2 border-gray-300 flex items-center justify-center text-[10px] font-bold text-gray-200 drop-shadow-md">
                                     G

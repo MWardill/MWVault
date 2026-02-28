@@ -33,6 +33,17 @@ const colorMap: Record<MenuCardColor, { border: string; label: string; glow: str
     },
 };
 
+// Vercel performance guideline (rendering-hoist-jsx): 
+// Hoist static sub-trees outside of the component so they are only created once.
+const PIXEL_CORNERS = (
+    <>
+        <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-inherit opacity-60" />
+        <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-inherit opacity-60" />
+        <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-inherit opacity-60" />
+        <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-inherit opacity-60" />
+    </>
+);
+
 export function MenuCard({
     title,
     description,
@@ -62,11 +73,8 @@ export function MenuCard({
             )}
             disabled={disabled}
         >
-            {/* Pixel corner accents */}
-            <span className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-inherit opacity-60" />
-            <span className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-inherit opacity-60" />
-            <span className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-inherit opacity-60" />
-            <span className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-inherit opacity-60" />
+            {/* Pixel corner accents - Hoisted for performance */}
+            {PIXEL_CORNERS}
 
             <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">

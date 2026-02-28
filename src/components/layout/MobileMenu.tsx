@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { FloatingPanel } from "./FloatingPanel";
-import { JrpgMenuList } from "@/components/JrpgMenuList";
+import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
 
 export interface MenuItemType {
     id: string;
@@ -22,8 +22,8 @@ export interface MobileMenuProps {
 export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const coreItems = items.filter(item => item.isMobileCore);
-    const dropdownItems = items.filter(item => !item.isMobileCore);
+    const coreItems = useMemo(() => items.filter((item: MenuItemType) => item.isMobileCore), [items]);
+    const dropdownItems = useMemo(() => items.filter((item: MenuItemType) => !item.isMobileCore), [items]);
 
     return (
         <>
