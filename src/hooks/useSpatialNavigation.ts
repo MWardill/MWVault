@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 // The CSS class we attach to anything we want to be selectable
 export const SELECTABLE_CLASS = "jrpg-selectable";
@@ -11,10 +11,32 @@ interface Coordinate {
     element: HTMLElement;
 }
 
-export function useSpatialNavigation() {
-    const [focusedElementId, setFocusedElementId] = useState<string | null>(null);
+let globalFocusedId: string | null = null;
+const listeners = new Set<() => void>();
 
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+function subscribe(listener: () => void) {
+    listeners.add(listener);
+    return () => listeners.delete(listener);
+}
+
+function getSnapshot() {
+    return globalFocusedId;
+}
+
+export function setFocusedElementId(id: string | null) {
+    if (globalFocusedId !== id) {
+        globalFocusedId = id;
+        listeners.forEach(l => l());
+    }
+}
+
+let isInitialized = false;
+
+function initGlobalListeners() {
+    if (typeof window === 'undefined' || isInitialized) return;
+    isInitialized = true;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
         // Only react to arrow keys and Enter
         if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) return;
 
@@ -26,20 +48,22 @@ export function useSpatialNavigation() {
         const selectables = Array.from(document.querySelectorAll(`.${SELECTABLE_CLASS}`)) as HTMLElement[];
         if (selectables.length === 0) return;
 
+        const currentFocusedId = getSnapshot();
+
         // If nothing is focused yet, focus the first available item
-        if (!focusedElementId || e.key === "Enter") {
-            const currentEl = focusedElementId ? document.getElementById(focusedElementId) : null;
+        if (!currentFocusedId || e.key === "Enter") {
+            const currentEl = currentFocusedId ? document.getElementById(currentFocusedId) : null;
 
             if (e.key === "Enter" && currentEl) {
                 currentEl.click();
-            } else if (!focusedElementId) {
+            } else if (!currentFocusedId) {
                 setFocusedElementId(selectables[0].id);
                 selectables[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             }
             return;
         }
 
-        const currentEl = document.getElementById(focusedElementId);
+        const currentEl = document.getElementById(currentFocusedId);
         if (!currentEl) {
             setFocusedElementId(selectables[0].id);
             selectables[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -78,7 +102,6 @@ export function useSpatialNavigation() {
             let isConfiguredDirection = false;
 
             if (e.key === "ArrowLeft") {
-                // It must be to the left, and we tolerate a 45-degree angle cone
                 if (dx < 0 && Math.abs(dy) <= Math.abs(dx)) isConfiguredDirection = true;
             } else if (e.key === "ArrowRight") {
                 if (dx > 0 && Math.abs(dy) <= Math.abs(dx)) isConfiguredDirection = true;
@@ -98,24 +121,26 @@ export function useSpatialNavigation() {
             setFocusedElementId((bestMatch as HTMLElement).id);
             (bestMatch as HTMLElement).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
-    }, [focusedElementId]);
+    };
 
+    const handleClick = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const selectable = target.closest(`.${SELECTABLE_CLASS}`);
+        if (selectable && selectable.id) {
+            setFocusedElementId(selectable.id);
+        }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("click", handleClick);
+}
+
+export function useSpatialNavigation() {
     useEffect(() => {
-        const handleClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const selectable = target.closest(`.${SELECTABLE_CLASS}`);
-            if (selectable && selectable.id) {
-                setFocusedElementId(selectable.id);
-            }
-        };
+        initGlobalListeners();
+    }, []);
 
-        window.addEventListener("keydown", handleKeyDown);
-        document.addEventListener("click", handleClick);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-            document.removeEventListener("click", handleClick);
-        };
-    }, [handleKeyDown]);
+    const focusedElementId = useSyncExternalStore(subscribe, getSnapshot, () => null);
 
     return { focusedElementId, setFocusedElementId };
 }

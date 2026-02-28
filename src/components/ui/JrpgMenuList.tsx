@@ -12,19 +12,16 @@ interface MenuListProps {
         disabled?: boolean;
         onClick?: () => void;
     }[];
-    selectedIndex: number;
-    onHover: (index: number) => void;
 }
 
-export function JrpgMenuList({ items, selectedIndex, onHover }: MenuListProps) {
+export function JrpgMenuList({ items }: MenuListProps) {
     const { focusedElementId } = useSpatialNavigation();
 
     return (
         <ul className="flex flex-col w-full text-sm md:text-base leading-relaxed tracking-wider">
-            {items.map((item, i) => {
-                // Determine if this is active via traditional means OR via the new spatial navigation
+            {items.map((item) => {
+                // Determine if this is active via the spatial navigation
                 const isFocused = focusedElementId === `menu-${item.id}`;
-                const isSelected = isFocused || (i === selectedIndex && !focusedElementId);
 
                 return (
                     <li
@@ -36,13 +33,12 @@ export function JrpgMenuList({ items, selectedIndex, onHover }: MenuListProps) {
                             item.disabled ? "opacity-50" : "hover:text-[#ffffff]",
                             isFocused && "text-white"
                         )}
-                        onMouseEnter={() => !item.disabled && onHover(i)}
                         onClick={() => !item.disabled && item.onClick?.()}
                     >
                         {/* The Floating Hand Cursor */}
                         <div className={clsx(
                             "w-10 flex-shrink-0 flex justify-center translate-y-[-2px] transition-opacity",
-                            (isSelected && !item.disabled) ? "opacity-100" : "opacity-0"
+                            item.disabled ? "opacity-0" : (isFocused ? "opacity-100" : "opacity-0 group-hover:opacity-100")
                         )}>
                             <HandPointer />
                         </div>

@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { FloatingPanel } from "./FloatingPanel";
 import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
+import { HandPointer } from "@/components/ui/HandPointer";
 
 export interface MenuItemType {
     id: string;
@@ -41,7 +42,7 @@ export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
                                 disabled={item.disabled}
                                 className={`flex-1 text-center py-2 transition-colors relative flex justify-center hover:text-white ${currentRouteId === item.id ? 'text-white' : 'text-gray-400'} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                {currentRouteId === item.id && <span className="jrpg-hand-cursor translate-y-[-2px] absolute left-2 sm:left-6">👉🏻</span>}
+                                {currentRouteId === item.id && <HandPointer className="absolute left-2 sm:left-6 translate-y-[-2px]" />}
                                 {item.label}
                             </button>
                         ))}
@@ -70,8 +71,6 @@ export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
                                     setIsOpen(false);
                                 }
                             }))}
-                            selectedIndex={-1}
-                            onHover={() => { }}
                         />
                     </FloatingPanel>
                 )}

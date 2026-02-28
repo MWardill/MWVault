@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState, useMemo, useCallback, useEffect } from "react";
+import { ReactNode, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
 import { useTransitionRouter } from "next-view-transitions";
@@ -23,8 +23,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
     const pathname = usePathname();
     const currentRouteId = pathname?.split("/")[1] || "item";
-    const [selectedIndex, setSelectedIndex] = useState(0);
-    const [activeCard, setActiveCard] = useState<string | null>(null);
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
@@ -69,11 +67,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 {/* Right Pane: Navigation & Info (Desktop) */}
                 <div className="hidden lg:flex flex-col absolute -right-12 z-20">
                     <FloatingPanel viewTransitionName="menu-panel">
-                        <JrpgMenuList
-                            items={menuItems}
-                            selectedIndex={selectedIndex}
-                            onHover={setSelectedIndex}
-                        />
+                        <JrpgMenuList items={menuItems} />
                     </FloatingPanel>
                 </div>
 
