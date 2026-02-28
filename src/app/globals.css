@@ -126,16 +126,9 @@ body {
   z-index: 10;
 }
 
-/* ─── Selection Hand Cursor ──────────────────────────────────── */
-/* Recreates the classic floating white glove */
-.jrpg-hand-cursor {
-  display: inline-block;
-  font-size: 1.2rem;
-  /* Filter to make emoji/character look more white/pixelated */
-  filter: brightness(1.5) drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.8));
-  animation: float-horizontal 1s ease-in-out infinite alternate;
-}
 
+
+/* ─── Scrollbar (JRPG Style) ─────────────────────────────────── */
 @keyframes float-horizontal {
   0% {
     transform: translateX(0);
@@ -146,7 +139,6 @@ body {
   }
 }
 
-/* ─── Scrollbar (JRPG Style) ─────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
 }
