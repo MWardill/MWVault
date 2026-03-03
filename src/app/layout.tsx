@@ -3,6 +3,7 @@ import { Press_Start_2P, Share_Tech_Mono, Pixelify_Sans } from "next/font/google
 import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
 import AppShell from "@/components/layout/AppShell";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -41,7 +42,9 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="en" className={`${pressStart2P.variable} ${shareTechMono.variable}`}>
         <body className="antialiased">
-          <AppShell>{children}</AppShell>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </body>
       </html>
     </ViewTransitions>

@@ -10,19 +10,19 @@ import { usePathname } from "next/navigation";
 import { MobileMenu } from "./MobileMenu";
 
 const MENU_ITEMS = [
-    { id: "item", label: "Item", description: "Use or sort acquired items.", isMobileCore: true },
+    { id: "home", label: "Home", description: "Use or sort acquired items.", isMobileCore: true },
     { id: "magic", label: "Magic", description: "Cast recovery magic or view spell lists.", disabled: true },
     { id: "equip", label: "Equip", description: "Change character weapons and armor.", disabled: true },
     { id: "status", label: "Status", description: "Check character parameters.", disabled: true },
     { id: "order", label: "Order", description: "Change the party formation.", disabled: true },
-    { id: "vault", label: "Vault", description: "Access your complete video game collection.", isMobileCore: true },
-    { id: "config", label: "Config", description: "Change window color and game settings.", disabled: true },
+    { id: "collection", label: "Collection", description: "Access your complete video game collection.", isMobileCore: true },
+    { id: "config", label: "Config", description: "Change window color and game settings." },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
     const pathname = usePathname();
-    const currentRouteId = pathname?.split("/")[1] || "item";
+    const currentRouteId = pathname?.split("/")[1] || "home";
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
