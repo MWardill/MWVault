@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
@@ -42,17 +42,15 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Scroll to selected item when opened
-    useEffect(() => {
-        if (isOpen && selectedConsole) {
-            setTimeout(() => {
-                const element = document.getElementById(`dropdown-${selectedConsole.id}`);
-                if (element) {
-                    element.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
-            }, 50); // slight delay to allow mounting/animation
+    // Scroll to selected item when opened using a callback ref (avoids DOM reads in effects)
+    const selectedItemRef = useCallback((node: HTMLButtonElement | null) => {
+        if (isOpen && node) {
+            // requestAnimationFrame ensures the DOM is painted and layout is ready
+            requestAnimationFrame(() => {
+                node.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            });
         }
-    }, [isOpen, selectedConsole]);
+    }, [isOpen]);
 
     const toggleDropdown = () => setIsOpen((prev) => !prev);
 
@@ -138,6 +136,7 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
                                         <button
                                             key={c.id}
                                             type="button"
+                                            ref={isSelected ? selectedItemRef : null}
                                             id={`dropdown-${c.id}`}
                                             onClick={(e) => {
                                                 e.stopPropagation();
