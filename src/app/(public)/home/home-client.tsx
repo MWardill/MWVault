@@ -12,7 +12,7 @@ type ConsoleItem = {
 };
 
 export default function HomeClient({ initialItems }: { initialItems: ConsoleItem[] }) {
-    const [selectedId, setSelectedId] = useState<string | number | undefined>(initialItems[0]?.id);
+    const [_, setSelectedId] = useState<string | number | undefined>(initialItems[0]?.id);
     const router = useTransitionRouter();
 
     return (

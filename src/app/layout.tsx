@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Press_Start_2P, Share_Tech_Mono, Pixelify_Sans } from "next/font/google";
+import { Press_Start_2P, Share_Tech_Mono } from "next/font/google";
 import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
 import AppShell from "@/components/layout/AppShell";

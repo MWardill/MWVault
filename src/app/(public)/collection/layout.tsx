@@ -1,5 +1,5 @@
 import { getAllConsoles } from "./actions";
-import ConsoleDropdown from "@/components/ui/ConsoleDropdown";
+import { ConsoleDropdown } from "@/components/ui/ConsoleDropdown";
 
 export const dynamic = "force-dynamic";
 

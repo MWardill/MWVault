@@ -50,7 +50,7 @@ function initGlobalListeners() {
         if (selectables.length === 0) return;
 
         let currentFocusedId = getSnapshot();
-        let currentEl = currentFocusedId ? document.getElementById(currentFocusedId) : null;
+        const currentEl = currentFocusedId ? document.getElementById(currentFocusedId) : null;
 
         // If element vanished (e.g. route change or unmount), clear focus state
         if (currentFocusedId && !currentEl) {

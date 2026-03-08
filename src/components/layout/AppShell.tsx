@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
 import { useTransitionRouter } from "next-view-transitions";
 import { FloatingPanel } from "./FloatingPanel";

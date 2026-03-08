@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { clsx } from "clsx";
 import { useSpatialNavigation } from "@/hooks/useSpatialNavigation";
 import { HandPointer } from "@/components/ui/HandPointer";

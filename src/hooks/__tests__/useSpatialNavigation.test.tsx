@@ -83,10 +83,10 @@ describe('useSpatialNavigation', () => {
 
     it('ignores disabled elements during navigation', () => {
         const { result } = renderHook(() => useSpatialNavigation());
-        const item1 = createSelectableItem('item-1', 0, 0);
+        createSelectableItem('item-1', 0, 0);
         const item2 = createSelectableItem('item-2', 100, 0);
         item2.dataset.disabled = "true";
-        const item3 = createSelectableItem('item-3', 200, 0);
+        createSelectableItem('item-3', 200, 0);
 
         act(() => {
             setFocusedElementId('item-1');
