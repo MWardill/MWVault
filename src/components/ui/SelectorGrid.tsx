@@ -15,11 +15,10 @@ interface SelectorGridProps {
     title: string;
     items: SelectorItemType[];
     onSelect?: (item: SelectorItemType) => void;
-    selectedId?: string | number;
     className?: string;
 }
 
-export default function SelectorGrid({ title, items, onSelect, selectedId, className = "" }: SelectorGridProps) {
+export default function SelectorGrid({ title, items, onSelect, className = "" }: SelectorGridProps) {
     const { focusedElementId } = useSpatialNavigation();
 
     return (
