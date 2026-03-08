@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
 const ALLOWED_EMAILS = [
-    "mat.wardill@gmail.com", // Add your designated user emails here
+    "mat3740@gmail.com", // Add your designated user emails here
 ];
 
 const handler = NextAuth({
@@ -15,11 +15,14 @@ const handler = NextAuth({
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async signIn({ user }) {
+            const userEmail = user.email?.toLowerCase().trim();
+            const allowedEmails = ALLOWED_EMAILS.map(e => e.toLowerCase().trim());
+
             // Only allow designated emails to sign in to maintain application security
-            if (user.email && ALLOWED_EMAILS.includes(user.email)) {
+            if (userEmail && allowedEmails.includes(userEmail)) {
                 return true;
             }
-            console.warn(`Unauthorized login attempt by: ${user.email}`);
+            console.warn(`Unauthorized login attempt by: '${user.email}'`);
             return false;
         },
     },

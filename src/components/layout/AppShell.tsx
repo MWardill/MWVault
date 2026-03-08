@@ -8,6 +8,7 @@ import { FloatingPanel } from "./FloatingPanel";
 import { GameClock } from "@/components/ui/GameClock";
 import { usePathname } from "next/navigation";
 import { MobileMenu } from "./MobileMenu";
+import { useSession } from "next-auth/react";
 
 const MENU_ITEMS = [
     { id: "home", label: "Home", description: "Use or sort acquired items.", isMobileCore: true },
@@ -23,6 +24,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
     const pathname = usePathname();
     const currentRouteId = pathname?.split("/")[1] || "home";
+    const { data: session } = useSession();
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
@@ -91,10 +93,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     <FloatingPanel
                         className="w-full relative"
                         viewTransitionName="location-panel"
-                        title="Location"
+                        title={session?.user ? "User" : "Location"}
                     >
-                        <div className="font-pixel text-base text-gray-100 jrpg-text-shadow w-full text-center">
-                            Conde Petie/Entrance
+                        <div className="font-pixel text-base text-gray-100 jrpg-text-shadow w-full text-center truncate px-2">
+                            {session?.user?.name || session?.user?.email?.split('@')[0] || "Guest"}
                         </div>
                     </FloatingPanel>
                 </div>
