@@ -40,33 +40,41 @@ function initGlobalListeners() {
         // Only react to arrow keys and Enter
         if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) return;
 
+        // Respect native defaultPrevented 
+        if (e.defaultPrevented) return;
+
         // Let standard input fields work normally
         if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
-        e.preventDefault();
 
         const selectables = Array.from(document.querySelectorAll(`.${SELECTABLE_CLASS}`)) as HTMLElement[];
         if (selectables.length === 0) return;
 
-        const currentFocusedId = getSnapshot();
+        let currentFocusedId = getSnapshot();
+        let currentEl = currentFocusedId ? document.getElementById(currentFocusedId) : null;
 
-        // If nothing is focused yet, focus the first available item
-        if (!currentFocusedId || e.key === "Enter") {
-            const currentEl = currentFocusedId ? document.getElementById(currentFocusedId) : null;
+        // If element vanished (e.g. route change or unmount), clear focus state
+        if (currentFocusedId && !currentEl) {
+            setFocusedElementId(null);
+            currentFocusedId = null;
+        }
 
-            if (e.key === "Enter" && currentEl) {
-                currentEl.click();
-            } else if (!currentFocusedId) {
+        // If no element is spatially focused yet
+        if (!currentFocusedId || !currentEl) {
+            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) {
+                e.preventDefault();
                 setFocusedElementId(selectables[0].id);
                 selectables[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                // Note: if it was Enter, we just focus on the first item visually but don't instantly click it. 
+                // That prevents accidental clicks when first selecting the UI.
             }
             return;
         }
 
-        const currentEl = document.getElementById(currentFocusedId);
-        if (!currentEl) {
-            setFocusedElementId(selectables[0].id);
-            selectables[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        // We have an active focused element, spatial navigation handles the keydown exclusively
+        e.preventDefault();
+
+        if (e.key === "Enter") {
+            currentEl.click();
             return;
         }
 
@@ -96,19 +104,33 @@ function initGlobalListeners() {
             const dx = center.x - currentCenter.x;
             const dy = center.y - currentCenter.y;
 
-            // Calculate Euclidean distance, but we will heavily weight the axis we are traveling on
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
             let isConfiguredDirection = false;
+            let distance = Infinity;
+
+            // We heavily penalize movement on the non-intended axis to prevent jumping out of rows/columns
+            // to nearby but misaligned elements (like wide header bars).
+            const orthoPenalty = 10;
 
             if (e.key === "ArrowLeft") {
-                if (dx < 0 && Math.abs(dy) <= Math.abs(dx)) isConfiguredDirection = true;
+                if (dx < 0 && Math.abs(dy) <= Math.abs(dx)) {
+                    isConfiguredDirection = true;
+                    distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
+                }
             } else if (e.key === "ArrowRight") {
-                if (dx > 0 && Math.abs(dy) <= Math.abs(dx)) isConfiguredDirection = true;
+                if (dx > 0 && Math.abs(dy) <= Math.abs(dx)) {
+                    isConfiguredDirection = true;
+                    distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
+                }
             } else if (e.key === "ArrowUp") {
-                if (dy < 0 && Math.abs(dx) <= Math.abs(dy)) isConfiguredDirection = true;
+                if (dy < 0 && Math.abs(dx) <= Math.abs(dy)) {
+                    isConfiguredDirection = true;
+                    distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
+                }
             } else if (e.key === "ArrowDown") {
-                if (dy > 0 && Math.abs(dx) <= Math.abs(dy)) isConfiguredDirection = true;
+                if (dy > 0 && Math.abs(dx) <= Math.abs(dy)) {
+                    isConfiguredDirection = true;
+                    distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
+                }
             }
 
             if (isConfiguredDirection && distance < shortestDistance) {

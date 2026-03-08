@@ -74,7 +74,10 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') toggleDropdown();
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleDropdown();
+                    }
                 }}
             >
                 <div className="px-3 py-2 md:px-4 md:py-2 flex items-center justify-between">
