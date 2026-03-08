@@ -2,6 +2,7 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import Sprite from "@/components/images/Sprite";
+import Image from "next/image";
 
 export default function Config() {
     const { data: session, status } = useSession();
@@ -27,9 +28,11 @@ export default function Config() {
                         <>
                             <div className="flex items-center gap-4 bg-black/40 border border-[#7fc0ff]/30 p-3 rounded-md">
                                 {session.user?.image ? (
-                                    <img
+                                    <Image
                                         src={session.user.image}
                                         alt="Profile"
+                                        width={40}
+                                        height={40}
                                         className="w-10 h-10 rounded-full border-2 border-[#7fc0ff]"
                                     />
                                 ) : (
