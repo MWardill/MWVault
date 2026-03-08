@@ -66,7 +66,7 @@ export function MenuCard({
             animate={isPressed ? { y: 1 } : { y: 0 }}
             className={clsx(
                 "relative group w-full text-left p-5 rounded-none",
-                "bg-[#0d1117] border transition-all duration-200 cursor-pointer",
+                "bg-[#0d1117] border transition-[box-shadow,border-color,background-color] duration-200 cursor-pointer",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00ff41]",
                 colors.border,
                 disabled && "opacity-40 cursor-not-allowed"

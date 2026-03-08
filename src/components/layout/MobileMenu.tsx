@@ -35,12 +35,15 @@ export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
                         {coreItems.map(item => (
                             <button
                                 key={item.id}
+                                type="button"
+                                aria-label={item.label}
+                                aria-current={currentRouteId === item.id ? "page" : undefined}
                                 onClick={() => {
                                     item.onClick?.();
                                     setIsOpen(false);
                                 }}
                                 disabled={item.disabled}
-                                className={`flex-1 text-center py-2 transition-colors relative flex items-center justify-center hover:text-white ${currentRouteId === item.id ? 'text-white' : 'text-gray-400'} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`flex-1 text-center py-2 transition-colors relative flex items-center justify-center hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${currentRouteId === item.id ? 'text-white' : 'text-gray-400'} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 <span className="relative inline-block">
                                     {currentRouteId === item.id && (
@@ -53,8 +56,11 @@ export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
                             </button>
                         ))}
                         <button
+                            type="button"
                             onClick={() => setIsOpen(!isOpen)}
-                            className={`px-4 py-2 transition-colors flex justify-center items-center hover:text-white ${isOpen ? 'text-white' : 'text-gray-400'}`}
+                            className={`px-4 py-2 transition-colors flex justify-center items-center hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${isOpen ? 'text-white' : 'text-gray-400'}`}
+                            aria-label={isOpen ? "Close menu" : "Open menu"}
+                            aria-expanded={isOpen}
                         >
                             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>

@@ -64,21 +64,14 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
     return (
         <div className="relative w-full z-30 mb-4" ref={dropdownRef}>
             {/* The main panel acting as the toggle button */}
-            <div
+            <button
+                type="button"
                 id="console-dropdown-toggle"
                 className={clsx(
-                    "jrpg-panel jrpg-selectable relative cursor-pointer group transition-all duration-200",
+                    "w-full text-left jrpg-panel jrpg-selectable relative cursor-pointer group transition-[border-radius,border-width,padding] duration-200 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
                     isOpen ? "rounded-b-none border-b-0 pb-1" : "pb-1"
                 )}
                 onClick={toggleDropdown}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleDropdown();
-                    }
-                }}
             >
                 <div className="px-3 py-2 md:px-4 md:py-2 flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-3">
@@ -123,7 +116,7 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
                         </svg>
                     </div>
                 </div>
-            </div>
+            </button>
 
             {/* Expandable Menu */}
             <AnimatePresence>
@@ -142,15 +135,16 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
                                     const isSelected = c.shortCode === currentConsoleId;
 
                                     return (
-                                        <div
+                                        <button
                                             key={c.id}
+                                            type="button"
                                             id={`dropdown-${c.id}`}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 selectConsole(c.shortCode);
                                             }}
                                             className={clsx(
-                                                "jrpg-selectable flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors relative group",
+                                                "w-full text-left jrpg-selectable flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors relative group focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
                                                 isSelected ? "bg-white/10" : "hover:bg-white/5"
                                             )}
                                         >
@@ -182,7 +176,7 @@ export default function ConsoleDropdown({ consoles }: ConsoleDropdownProps) {
                                             )}>
                                                 {c.name}
                                             </span>
-                                        </div>
+                                        </button>
                                     );
                                 })}
                             </div>
