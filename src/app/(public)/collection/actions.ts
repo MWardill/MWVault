@@ -12,6 +12,13 @@ export async function getConsoleByShortCode(shortCode: string) {
     return consoleData;
 }
 
+export async function getAllConsoles() {
+    return await db
+        .select()
+        .from(consoles)
+        .orderBy(consoles.name);
+}
+
 export async function getCollectionByConsoleId(consoleId: number) {
     const collection = await db
         .select({
