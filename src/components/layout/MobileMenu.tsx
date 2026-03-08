@@ -40,10 +40,16 @@ export function MobileMenu({ items, currentRouteId }: MobileMenuProps) {
                                     setIsOpen(false);
                                 }}
                                 disabled={item.disabled}
-                                className={`flex-1 text-center py-2 transition-colors relative flex justify-center hover:text-white ${currentRouteId === item.id ? 'text-white' : 'text-gray-400'} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`flex-1 text-center py-2 transition-colors relative flex items-center justify-center hover:text-white ${currentRouteId === item.id ? 'text-white' : 'text-gray-400'} ${item.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
-                                {currentRouteId === item.id && <HandPointer className="absolute left-2 sm:left-6 translate-y-[-2px]" />}
-                                {item.label}
+                                <span className="relative inline-block">
+                                    {currentRouteId === item.id && (
+                                        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 sm:mr-3 flex items-center pointer-events-none">
+                                            <HandPointer className="text-sm sm:text-base leading-none" />
+                                        </span>
+                                    )}
+                                    <span className="relative z-10">{item.label}</span>
+                                </span>
                             </button>
                         ))}
                         <button

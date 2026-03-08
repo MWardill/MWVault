@@ -47,7 +47,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     initial={{ opacity: 0, x: -300 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="absolute inset-0 flex flex-col gap-4 w-full h-full pr-2 custom-scrollbar z-0"
+                    className="absolute inset-0 flex flex-col gap-4 w-full h-full lg:pr-2 custom-scrollbar z-0"
                 >
 
 

@@ -22,9 +22,9 @@ export default async function ConsoleCollectionPage({
     const collection = await getCollectionByConsoleId(consoleData.id);
     return (
         <div className="flex-1 flex flex-col w-full relative h-[calc(100vh-140px)]">
-            <div className="flex items-center gap-4 mb-4 flex-none">
+            <div className="flex items-center gap-2 sm:gap-4 mb-4 flex-none min-w-0">
                 {consoleData.iconPath && (
-                    <div className="w-12 h-12 flex items-center justify-center rounded-md p-2">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center rounded-md p-1 sm:p-2">
                         <Sprite
                             src={consoleData.iconPath}
                             alt={consoleData.name}
@@ -34,8 +34,8 @@ export default async function ConsoleCollectionPage({
                         />
                     </div>
                 )}
-                <h1 className="text-xl md:text-2xl font-pixel text-white jrpg-text-shadow drop-shadow-[2px_2px_0_rgba(0,0,0,0.8)] tracking-wide pt-2">
-                    {consoleData.name} Library
+                <h1 className="text-sm sm:text-lg md:text-2xl font-pixel text-white jrpg-text-shadow drop-shadow-[2px_2px_0_rgba(0,0,0,0.8)] tracking-wide pt-2 truncate" title={consoleData.name}>
+                    {consoleData.name}
                 </h1>
             </div>
 
