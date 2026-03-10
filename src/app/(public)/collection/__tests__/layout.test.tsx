@@ -42,9 +42,10 @@ describe('CollectionLayout Integration', () => {
         expect(screen.getByTestId('child-content')).toBeInTheDocument();
 
         // Verify the dropdown receives the correct consoles
-        const dropdown = screen.getByTestId('mock-console-dropdown');
-        expect(dropdown).toBeInTheDocument();
-        expect(dropdown).toHaveAttribute('data-console-count', '2');
+        const dropdowns = screen.getAllByTestId('mock-console-dropdown');
+        expect(dropdowns).toHaveLength(2);
+        expect(dropdowns[0]).toHaveAttribute('data-console-count', '2');
+        expect(dropdowns[1]).toHaveAttribute('data-console-count', '2');
 
         // Ensure action was called
         expect(getAllConsoles).toHaveBeenCalledTimes(1);
@@ -52,5 +53,6 @@ describe('CollectionLayout Integration', () => {
             expect.objectContaining({ consoles: mockConsoles }),
             undefined
         );
+        expect(ConsoleDropdown).toHaveBeenCalledTimes(2);
     });
 });

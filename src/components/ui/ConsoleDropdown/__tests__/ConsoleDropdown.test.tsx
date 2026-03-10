@@ -3,23 +3,20 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
 import { ConsoleDropdown } from '../ConsoleDropdown';
 
-// Mock the router
-const pushMock = vi.fn();
-vi.mock('next-view-transitions', () => ({
-    useTransitionRouter: () => ({
-        push: pushMock,
+// Mock the Navigation Context instead of next-view-transitions directly
+const navigateMock = vi.fn();
+vi.mock('@/contexts/NavigationContext', () => ({
+    useNavigation: () => ({
+        isNavigating: false,
+        transitionType: 'slide',
+        navigate: navigateMock,
     }),
 }));
 
-// Mock params and router
+// Mock next/navigation params
 vi.mock('next/navigation', () => ({
     useParams: () => ({
         consoleId: 'snes',
-    }),
-    useRouter: () => ({
-        push: pushMock,
-        replace: vi.fn(),
-        prefetch: vi.fn(),
     })
 }));
 
@@ -120,11 +117,13 @@ describe('ConsoleDropdown (Compound)', () => {
 
         await user.click(targetItem);
 
-        expect(pushMock).toHaveBeenCalledWith('/collection/megadrive');
+        await new Promise(resolve => setTimeout(resolve, 250));
+        expect(navigateMock).toHaveBeenCalledWith('/collection/megadrive');
 
-        // Should be closed after click
+        // Should be closed after click, and since we use optimistic UI, the trigger will show "Sega Mega Drive".
+        // We verify closure by checking the item ID is gone.
         await waitFor(() => {
-            expect(screen.queryByText('Sega Mega Drive')).not.toBeInTheDocument();
+            expect(document.getElementById('dropdown-2')).not.toBeInTheDocument();
         });
     });
 });

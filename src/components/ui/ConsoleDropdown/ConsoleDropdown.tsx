@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import { Root } from "./Root";
 import { Trigger } from "./Trigger";
 import { Content } from "./Content";
@@ -16,10 +17,20 @@ interface ConsoleDataType {
 export function ConsoleDropdownMain({ consoles }: { consoles: ConsoleDataType[] }) {
     const params = useParams();
     const currentConsoleId = typeof params?.consoleId === 'string' ? params.consoleId : null;
-    const selectedConsole = consoles.find(c => c.shortCode === currentConsoleId);
+
+    // Optimistic state to immediately update the trigger UI during the 200ms animation delay
+    const [optimisticConsoleId, setOptimisticConsoleId] = useState<string | null>(currentConsoleId);
+
+    // Sync optimistic state whenever the actual URL params change
+    useEffect(() => {
+        setOptimisticConsoleId(currentConsoleId);
+    }, [currentConsoleId]);
+
+    const activeConsoleId = optimisticConsoleId ?? currentConsoleId;
+    const selectedConsole = consoles.find(c => c.shortCode === activeConsoleId);
 
     return (
-        <Root>
+        <Root onSelect={setOptimisticConsoleId}>
             <Trigger
                 selectedName={selectedConsole?.name}
                 selectedIconPath={selectedConsole?.iconPath}

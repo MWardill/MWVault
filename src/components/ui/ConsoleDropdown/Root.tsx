@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { ConsoleDropdownContext } from "./context";
 
-export function Root({ children }: { children: ReactNode }) {
+export function Root({ children, onSelect }: { children: ReactNode, onSelect?: (shortCode: string) => void }) {
     const [isOpen, setIsOpen] = useState(false);
     const { navigate } = useNavigation();
     const params = useParams();
@@ -33,7 +33,14 @@ export function Root({ children }: { children: ReactNode }) {
 
     const selectConsole = (shortCode: string) => {
         setIsOpen(false);
-        navigate(`/collection/${shortCode}`);
+        if (onSelect) {
+            onSelect(shortCode);
+        }
+        // Wait for the Framer Motion AnimatePresence exit animation (0.2s) in Content.tsx to finish
+        // before executing the route transition, so it doesn't clip visually.
+        setTimeout(() => {
+            navigate(`/collection/${shortCode}`);
+        }, 200);
     };
 
     return (
