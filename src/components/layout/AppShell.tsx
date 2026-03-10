@@ -9,6 +9,8 @@ import { GameClock } from "@/components/ui/GameClock";
 import { usePathname } from "next/navigation";
 import { MobileMenu } from "./MobileMenu";
 import { useSession } from "next-auth/react";
+import { useSplash } from "@/contexts/SplashContext";
+import { SplashScreen } from "@/components/layout/SplashScreen";
 
 const MENU_ITEMS = [
     { id: "home", label: "Home", description: "Use or sort acquired items.", isMobileCore: true },
@@ -25,6 +27,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const currentRouteId = pathname?.split("/")[1] || "home";
     const { data: session } = useSession();
+    const { showSplash } = useSplash();
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
@@ -39,13 +42,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
     return (
         <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center lg:pt-0">
+            <SplashScreen />
             <main className="w-full max-w-6xl mx-auto h-[85vh] min-h-[600px] relative">
 
 
                 {/* Left Pane: Main Content */}
                 <motion.div
                     initial={{ opacity: 0, x: -300 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    animate={{ opacity: showSplash ? 0 : 1, x: showSplash ? -300 : 0 }}
                     transition={{ duration: 0.5 }}
                     className="absolute inset-0 flex flex-col gap-4 w-full h-full lg:pr-2 custom-scrollbar z-0"
                 >

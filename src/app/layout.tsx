@@ -4,6 +4,7 @@ import "./globals.css";
 import { ViewTransitions } from "next-view-transitions";
 import AppShell from "@/components/layout/AppShell";
 import { AuthProvider } from "@/components/AuthProvider";
+import { SplashProvider } from "@/contexts/SplashContext";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -43,7 +44,9 @@ export default function RootLayout({
       <html lang="en" className={`${pressStart2P.variable} ${shareTechMono.variable}`}>
         <body className="antialiased">
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+            <SplashProvider>
+              <AppShell>{children}</AppShell>
+            </SplashProvider>
           </AuthProvider>
         </body>
       </html>

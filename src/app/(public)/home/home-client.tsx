@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SelectorGrid from "@/components/ui/SelectorGrid";
+import { useSplash } from "@/contexts/SplashContext";
 import { useTransitionRouter } from "next-view-transitions";
 
 type ConsoleItem = {
@@ -15,6 +16,11 @@ export default function HomeClient({ initialItems }: { initialItems: ConsoleItem
     const [, setSelectedId] = useState<string | number | undefined>(initialItems[0]?.id);
     const router = useTransitionRouter();
     const [isSyncing, setIsSyncing] = useState(false);
+    const { setDbLoaded } = useSplash();
+
+    useEffect(() => {
+        setDbLoaded(true);
+    }, [setDbLoaded]);
 
     const handleSync = async () => {
         setIsSyncing(true);

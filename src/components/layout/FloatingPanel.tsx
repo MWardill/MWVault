@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { clsx } from "clsx";
+import { useSplash } from "@/contexts/SplashContext";
 
 interface FloatingPanelProps {
     children: ReactNode;
@@ -17,10 +18,12 @@ interface FloatingPanelProps {
  * It animates in from the right by default and handles its own internal layout padding.
  */
 export function FloatingPanel({ children, viewTransitionName, className, contentClassName, title }: FloatingPanelProps) {
+    const { showSplash } = useSplash();
+
     return (
         <motion.div
             initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
+            animate={{ opacity: showSplash ? 0 : 1, x: showSplash ? 100 : 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
             className={clsx(
                 "flex flex-col shrink-0 z-10",
