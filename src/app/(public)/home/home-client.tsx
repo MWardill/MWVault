@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import SelectorGrid from "@/components/ui/SelectorGrid";
 import { useSplash } from "@/contexts/SplashContext";
-import { useTransitionRouter } from "next-view-transitions";
+import { useNavigation } from "@/contexts/NavigationContext";
+
 
 type ConsoleItem = {
     id: string;
@@ -14,7 +15,7 @@ type ConsoleItem = {
 
 export default function HomeClient({ initialItems }: { initialItems: ConsoleItem[] }) {
     const [, setSelectedId] = useState<string | number | undefined>(initialItems[0]?.id);
-    const router = useTransitionRouter();
+    const { navigate } = useNavigation();
     const [isSyncing, setIsSyncing] = useState(false);
     const { setDbLoaded } = useSplash();
 
@@ -29,7 +30,8 @@ export default function HomeClient({ initialItems }: { initialItems: ConsoleItem
             const result = await syncIgdbGames();
             if (result.success) {
                 alert(`Successfully synced ${result.count} games from IGDB!`);
-                router.refresh();
+                // Note: since router isn't available, we bypass manual refresh or keep standard location reload
+                window.location.reload();
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -57,7 +59,7 @@ export default function HomeClient({ initialItems }: { initialItems: ConsoleItem
                 items={initialItems}
                 onSelect={(item) => {
                     setSelectedId(item.id);
-                    router.push(`/collection/${item.id}`);
+                    navigate(`/collection/${item.id}`);
                 }}
             />
         </div>

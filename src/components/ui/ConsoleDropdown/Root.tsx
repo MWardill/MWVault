@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback, ReactNode } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { ConsoleDropdownContext } from "./context";
 
 export function Root({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
-    const router = useRouter();
+    const { navigate } = useNavigation();
     const params = useParams();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +33,7 @@ export function Root({ children }: { children: ReactNode }) {
 
     const selectConsole = (shortCode: string) => {
         setIsOpen(false);
-        router.push(`/collection/${shortCode}`);
+        navigate(`/collection/${shortCode}`);
     };
 
     return (

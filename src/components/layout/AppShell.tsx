@@ -3,7 +3,7 @@
 import { ReactNode, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
-import { useTransitionRouter } from "next-view-transitions";
+import { useNavigation } from "@/contexts/NavigationContext";
 import { FloatingPanel } from "./FloatingPanel";
 import { GameClock } from "@/components/ui/GameClock";
 import { usePathname } from "next/navigation";
@@ -23,7 +23,7 @@ const MENU_ITEMS = [
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {
-    const router = useTransitionRouter();
+    const { navigate } = useNavigation();
     const pathname = usePathname();
     const currentRouteId = pathname?.split("/")[1] || "home";
     const { data: session } = useSession();
@@ -31,8 +31,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
     // Handle main menu selection
     const handleMenuClick = useCallback((id: string) => {
-        router.push(`/${id}`);
-    }, [router]);
+        navigate(`/${id}`);
+    }, [navigate]);
 
     // Memoize the mapped items array to prevent unneeded re-renders on layout state change
     const menuItems = useMemo(() => MENU_ITEMS.map((item) => ({
