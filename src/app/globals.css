@@ -161,11 +161,11 @@ body {
 }
 
 ::view-transition-old(main-panel) {
-  animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slideOutLeft 0.33s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 ::view-transition-new(main-panel) {
-  animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: slideInLeft 0.33s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 @keyframes slideInLeft {

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useTransition, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { useTransitionRouter } from "next-view-transitions";
 
 interface NavigationContextType {
@@ -15,17 +16,27 @@ const NavigationContext = createContext<NavigationContextType>({
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
-    const [isPending, startTransition] = useTransition();
+    const pathname = usePathname();
+    const [isNavigating, setIsNavigating] = useState(false);
+
+    useEffect(() => {
+        // Reset navigation state when pathname finishes changing
+        setIsNavigating(false);
+    }, [pathname]);
 
     const navigate = (path: string) => {
-        // startTransition pauses the rendering of the next layout until the Server Component DB fetch resolves
-        startTransition(() => {
+        if (path === pathname) return;
+
+        setIsNavigating(true);
+
+        // Allow React to flush the Toast to the DOM before Next-View-Transitions takes its snapshot
+        setTimeout(() => {
             router.push(path);
-        });
+        }, 50);
     };
 
     return (
-        <NavigationContext.Provider value={{ isNavigating: isPending, navigate }}>
+        <NavigationContext.Provider value={{ isNavigating, navigate }}>
             {children}
         </NavigationContext.Provider>
     );

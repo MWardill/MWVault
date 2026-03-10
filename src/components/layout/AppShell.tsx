@@ -50,7 +50,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <motion.div
                     initial={{ opacity: 0, x: -300 }}
                     animate={{ opacity: showSplash ? 0 : 1, x: showSplash ? -300 : 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{
+                        duration: 0.33,
+                        ease: [0.4, 0, 0.2, 1]
+                    }}
                     className="absolute inset-0 flex flex-col gap-4 w-full h-full lg:pr-2 custom-scrollbar z-0"
                 >
 
