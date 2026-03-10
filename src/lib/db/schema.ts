@@ -32,15 +32,17 @@ export const games = pgTable('games', {
     id: serial('id').primaryKey(),
     consoleId: integer('console_id').notNull().references(() => consoles.id, { onDelete: 'cascade' }),
     title: varchar('title', { length: 255 }).notNull(),
+    igdbId: integer('igdb_id').unique(),
+    summary: text('summary'),
+    developer: varchar('developer', { length: 255 }),
+    releaseDate: date('release_date', { mode: 'string' }),
     currentPrice: decimal('current_price', { precision: 10, scale: 2 }),
     imageUrl: varchar('image_url', { length: 512 }),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow(),
-}, (table) => {
-    return {
-        consoleIdx: index('idx_games_console').on(table.consoleId),
-    };
-});
+}, (t) => [
+    index('idx_games_console').on(t.consoleId)
+]);
 
 export const gamesRelations = relations(games, ({ one, many }) => ({
     console: one(consoles, {
@@ -66,11 +68,9 @@ export const gamesCollection = pgTable('games_collection', {
 
     addedAt: timestamp('added_at', { withTimezone: true, mode: 'date' }).defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow(),
-}, (table) => {
-    return {
-        userGameIdx: index('idx_games_collection_user_game').on(table.userId, table.gameId),
-    };
-});
+}, (t) => [
+    index('idx_games_collection_user_game').on(t.userId, t.gameId)
+]);
 
 export const gamesCollectionRelations = relations(gamesCollection, ({ one }) => ({
     user: one(users, {

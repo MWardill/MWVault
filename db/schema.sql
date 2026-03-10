@@ -27,12 +27,22 @@ CREATE TABLE IF NOT EXISTS games (
     id SERIAL PRIMARY KEY,
     console_id INTEGER NOT NULL REFERENCES consoles(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
+    igdb_id INTEGER UNIQUE,
+    summary TEXT,
+    developer VARCHAR(255),
+    release_date DATE,
     current_price DECIMAL(10, 2),
     image_url VARCHAR(512),
     
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Ensure new columns are added if the table already existed before they were introduced
+ALTER TABLE games ADD COLUMN IF NOT EXISTS igdb_id INTEGER UNIQUE;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS summary TEXT;
+ALTER TABLE games ADD COLUMN IF NOT EXISTS developer VARCHAR(255);
+ALTER TABLE games ADD COLUMN IF NOT EXISTS release_date DATE;
 
 -- 4. Games Collection Table
 -- This table tracks the actual games owned by the user, linking users directly to games

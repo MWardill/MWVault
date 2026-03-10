@@ -22,6 +22,7 @@ describe('SelectorGrid', () => {
         vi.mocked(useSpatialNavigation).mockReturnValue({
             focusedElementId: null,
             setFocusedElementId: vi.fn(),
+            //Think this is fine in a test
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
     });
