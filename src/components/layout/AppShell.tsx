@@ -58,14 +58,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 >
 
 
-                    <div style={{ viewTransitionName: 'main-panel' }} className="flex flex-col gap-4 w-full h-full">
+                    <div className="flex flex-col gap-4 w-full h-full">
                         {/* Header Row */}
                         <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 gap-x-12 border-b-2 border-slate-100/30">
                             Mat Wardill Collection v1.0
                         </div>
 
                         <div className="stippled jrpg-panel flex-1 flex flex-col pt-3 pb-6 px-4 md:pr-46 lg:pr-58 relative">
-                            {children}
+                            <div id="console-selector-portal" className="w-full shrink-0 z-30 relative" />
+                            <div style={{ viewTransitionName: 'main-panel' }} className="flex-1 flex flex-col w-full relative min-h-0">
+                                {children}
+                            </div>
                         </div>
                     </div>
                 </motion.div>
@@ -74,7 +77,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 <MobileMenu items={menuItems} currentRouteId={currentRouteId} />
 
                 {/* Right Pane: Navigation & Info (Desktop) */}
-                <div className="hidden lg:flex flex-col absolute -right-12 z-20">
+                <div className="hidden lg:flex flex-col absolute -right-12 z-20 gap-6">
                     <FloatingPanel viewTransitionName="menu-panel">
                         <JrpgMenuList items={menuItems} />
                     </FloatingPanel>
