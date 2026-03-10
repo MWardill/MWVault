@@ -4,13 +4,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { usePathname } from "next/navigation";
 import { useTransitionRouter } from "next-view-transitions";
 
+export type TransitionType = "slide" | "fade";
+
 interface NavigationContextType {
     isNavigating: boolean;
+    transitionType: TransitionType;
     navigate: (path: string) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType>({
     isNavigating: false,
+    transitionType: "slide",
     navigate: () => { },
 });
 
@@ -18,6 +22,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const router = useTransitionRouter();
     const pathname = usePathname();
     const [isNavigating, setIsNavigating] = useState(false);
+    const [transitionType, setTransitionType] = useState<TransitionType>("slide");
 
     useEffect(() => {
         // Reset navigation state when pathname finishes changing
@@ -26,6 +31,10 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
     const navigate = (path: string) => {
         if (path === pathname) return;
+
+        // If navigating between collection pages, use a simple fade instead of a full layout slide
+        const isCollectionToCollection = pathname.startsWith('/collection') && path.startsWith('/collection');
+        setTransitionType(isCollectionToCollection ? 'fade' : 'slide');
 
         setIsNavigating(true);
 
@@ -36,7 +45,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <NavigationContext.Provider value={{ isNavigating, navigate }}>
+        <NavigationContext.Provider value={{ isNavigating, transitionType, navigate }}>
             {children}
         </NavigationContext.Provider>
     );

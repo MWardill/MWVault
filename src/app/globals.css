@@ -203,3 +203,36 @@ body {
     transform: scale(0.95);
   }
 }
+
+/* ─── Contextual Sub-Transitions ─────────────────────────────── */
+::view-transition-group(content-fade) {
+  z-index: 40;
+}
+
+::view-transition-old(content-fade) {
+  animation: fadeOut 0.2s ease forwards;
+}
+
+::view-transition-new(content-fade) {
+  animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
