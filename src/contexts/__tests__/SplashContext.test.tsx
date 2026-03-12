@@ -1,57 +1,69 @@
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { SplashProvider, useSplash } from '../SplashContext';
 
-// Mock next/navigation
+// Mock next/navigation BEFORE dynamic imports
 const mockUsePathname = vi.fn();
 vi.mock('next/navigation', () => ({
     usePathname: () => mockUsePathname(),
 }));
 
-// Test component to consume context
-function TestComponent() {
-    const { showSplash, isComplete, setDbLoaded } = useSplash();
-    return (
-        <div>
-            <div data-testid="showSplash">{showSplash.toString()}</div>
-            <div data-testid="isComplete">{isComplete.toString()}</div>
-            <button data-testid="loadDb" onClick={() => setDbLoaded(true)}>Load DB</button>
-        </div>
-    );
-}
-
+// We must reset modules between tests because SplashContext has a module-level
+// `isFirstAppLoad` flag that is permanently mutated after the first render.
+// resetModules() gives each test a fresh copy of the module with the flag = true.
 describe('SplashContext', () => {
     beforeEach(() => {
         vi.useFakeTimers();
-        // Reset the isInitialLoad ref implicitly by handling modules, 
-        // but since it's module-level caching in some React setups we mock carefully.
         vi.clearAllMocks();
+        vi.resetModules();
     });
 
     afterEach(() => {
         vi.useRealTimers();
     });
 
-    it('shows splash on initial load if route is /', () => {
+    it('shows splash on initial load if route is /', async () => {
         mockUsePathname.mockReturnValue('/');
+        const { SplashProvider, useSplash } = await import('../SplashContext');
+
+        function TestComponent() {
+            const { showSplash } = useSplash();
+            return <div data-testid="showSplash">{showSplash.toString()}</div>;
+        }
+
         render(<SplashProvider><TestComponent /></SplashProvider>);
 
         expect(screen.getByTestId('showSplash')).toHaveTextContent('true');
     });
 
-    it('does not show splash on initial load if route is /collection', () => {
+    it('does not show splash on initial load if route is /collection', async () => {
         mockUsePathname.mockReturnValue('/collection');
-        // We have to isolate modules to reset the internal useRef(true) 
-        // if this was running in a shared environment, but testing library usually remounts it fresh.
+        const { SplashProvider, useSplash } = await import('../SplashContext');
+
+        function TestComponent() {
+            const { showSplash } = useSplash();
+            return <div data-testid="showSplash">{showSplash.toString()}</div>;
+        }
+
         render(<SplashProvider><TestComponent /></SplashProvider>);
 
-        // Wait, the hook uses useRef(true) which resets on mount. 
-        // So rendering a new provider is a new mount.
         expect(screen.getByTestId('showSplash')).toHaveTextContent('false');
     });
 
     it('completes the splash sequence once DB is loaded and 1 second passes', async () => {
         mockUsePathname.mockReturnValue('/');
+        const { SplashProvider, useSplash } = await import('../SplashContext');
+
+        function TestComponent() {
+            const { showSplash, isComplete, setDbLoaded } = useSplash();
+            return (
+                <div>
+                    <div data-testid="showSplash">{showSplash.toString()}</div>
+                    <div data-testid="isComplete">{isComplete.toString()}</div>
+                    <button data-testid="loadDb" onClick={() => setDbLoaded(true)}>Load DB</button>
+                </div>
+            );
+        }
+
         render(<SplashProvider><TestComponent /></SplashProvider>);
 
         expect(screen.getByTestId('showSplash')).toHaveTextContent('true');

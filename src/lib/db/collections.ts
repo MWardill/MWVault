@@ -9,8 +9,15 @@ export async function getCollectionByConsoleIdFromDb(consoleId: number) {
             title: games.title,
             hasBox: gamesCollection.hasBox,
             hasManual: gamesCollection.hasManual,
+            isSealed: gamesCollection.isSealed,
+            isWishlist: gamesCollection.isWishlist,
             conditionRating: gamesCollection.conditionRating,
+            purchasePrice: gamesCollection.purchasePrice,
+            notes: gamesCollection.notes,
             imageUrl: games.imageUrl,
+            summary: games.summary,
+            developer: games.developer,
+            releaseDate: games.releaseDate,
         })
         .from(gamesCollection)
         .innerJoin(games, eq(gamesCollection.gameId, games.id))

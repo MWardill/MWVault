@@ -18,6 +18,11 @@ vi.mock('@/components/ui/ConsoleDropdown', () => ({
     )),
 }));
 
+// Mock ConsolePortal to render children inline (no DOM portal target in JSDOM)
+vi.mock('@/components/ui/ConsolePortal', () => ({
+    ConsolePortal: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
 describe('CollectionLayout Integration', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -41,7 +46,7 @@ describe('CollectionLayout Integration', () => {
         // Verify the child content renders
         expect(screen.getByTestId('child-content')).toBeInTheDocument();
 
-        // Verify the dropdown receives the correct consoles
+        // Verify the dropdown receives the correct consoles — one mobile inline + one in portal
         const dropdowns = screen.getAllByTestId('mock-console-dropdown');
         expect(dropdowns).toHaveLength(2);
         expect(dropdowns[0]).toHaveAttribute('data-console-count', '2');
