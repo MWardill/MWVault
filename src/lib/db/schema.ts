@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, timestamp, integer, decimal, boolean, date, text, index } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, timestamp, integer, decimal, boolean, date, text, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 // 1. Users Table
@@ -61,6 +61,7 @@ export const gamesCollection = pgTable('games_collection', {
     hasBox: boolean('has_box').default(false),
     hasManual: boolean('has_manual').default(false),
     isSealed: boolean('is_sealed').default(false),
+    isWishlist: boolean('is_wishlist').default(false),
     conditionRating: integer('condition_rating'),
     purchasePrice: decimal('purchase_price', { precision: 10, scale: 2 }),
     purchaseDate: date('purchase_date', { mode: 'string' }),
@@ -69,7 +70,7 @@ export const gamesCollection = pgTable('games_collection', {
     addedAt: timestamp('added_at', { withTimezone: true, mode: 'date' }).defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }).defaultNow(),
 }, (t) => [
-    index('idx_games_collection_user_game').on(t.userId, t.gameId)
+    uniqueIndex('uq_user_game').on(t.userId, t.gameId)
 ]);
 
 export const gamesCollectionRelations = relations(gamesCollection, ({ one }) => ({

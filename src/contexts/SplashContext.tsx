@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 interface SplashContextType {
@@ -15,22 +15,24 @@ const SplashContext = createContext<SplashContextType>({
     setDbLoaded: () => { },
 });
 
+// Module-level flag — true only for the very first mount of the SplashProvider.
+// Evaluated synchronously before any render, so it's safe to use in useState initialisers.
+let isFirstAppLoad = true;
+
 export function SplashProvider({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const isHome = pathname === "/home" || pathname === "/";
 
-    // Ref to track if it's the very first page load
-    const isInitialLoad = useRef(true);
-
-    // Only show splash if it's the initial load AND we landed on home.
-    const [showSplash, setShowSplash] = useState(() => isHome && isInitialLoad.current);
+    // Only show splash on the very first load when landing on home.
+    const [showSplash, setShowSplash] = useState(() => isHome && isFirstAppLoad);
     const [timerDone, setTimerDone] = useState(false);
     const [dbLoaded, setDbLoadedState] = useState(false);
 
     const isComplete = timerDone && dbLoaded;
 
+    // Mark subsequent mounts as non-initial immediately after the first render.
     useEffect(() => {
-        isInitialLoad.current = false;
+        isFirstAppLoad = false;
     }, []);
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import { render, screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
 import { MobileMenu } from '../MobileMenu';

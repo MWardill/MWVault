@@ -3,9 +3,26 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import Sprite from "@/components/images/Sprite";
 import Image from "next/image";
+import { useState } from "react";
+import { importCollectionFromCsv } from "@/lib/actions/collection";
 
 export default function Config() {
     const { data: session, status } = useSession();
+    const [isImporting, setIsImporting] = useState(false);
+    const [importResult, setImportResult] = useState<{ success: boolean; message: string } | null>(null);
+
+    async function handleImport(formData: FormData) {
+        setIsImporting(true);
+        setImportResult(null);
+
+        const result = await importCollectionFromCsv(formData);
+
+        setIsImporting(false);
+        setImportResult({
+            success: result.success,
+            message: result.success ? result.message : result.error || "An error occurred.",
+        });
+    }
 
     return (
         <div className="flex-1 flex flex-col w-full relative">
@@ -26,32 +43,34 @@ export default function Config() {
                         <div className="text-gray-400 font-pixel animate-pulse">Checking status...</div>
                     ) : session ? (
                         <>
-                            <div className="flex items-center gap-4 bg-black/40 border border-[#7fc0ff]/30 p-3 rounded-md">
-                                {session.user?.image ? (
-                                    <Image
-                                        src={session.user.image}
-                                        alt="Profile"
-                                        width={40}
-                                        height={40}
-                                        className="w-10 h-10 rounded-full border-2 border-[#7fc0ff]"
-                                    />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-full border-2 border-[#7fc0ff] bg-gray-700 flex items-center justify-center">
-                                        <Sprite src="/sprites/mogWalkFront.gif" alt="User" width={32} height={32} />
+                            <div className="flex flex-col md:flex-row md:items-center gap-4 w-full justify-between">
+                                <div className="flex items-center gap-4 bg-black/40 border border-[#7fc0ff]/30 p-3 rounded-md">
+                                    {session.user?.image ? (
+                                        <Image
+                                            src={session.user.image}
+                                            alt="Profile"
+                                            width={40}
+                                            height={40}
+                                            className="w-10 h-10 rounded-full border-2 border-[#7fc0ff]"
+                                        />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full border-2 border-[#7fc0ff] bg-gray-700 flex items-center justify-center">
+                                            <Sprite src="/sprites/mogWalkFront.gif" alt="User" width={32} height={32} />
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col">
+                                        <span className="text-white font-pixel text-sm">{session.user?.name}</span>
+                                        <span className="text-gray-400 font-pixel text-xs mt-1">{session.user?.email}</span>
                                     </div>
-                                )}
-                                <div className="flex flex-col">
-                                    <span className="text-white font-pixel text-sm">{session.user?.name}</span>
-                                    <span className="text-gray-400 font-pixel text-xs mt-1">{session.user?.email}</span>
                                 </div>
-                            </div>
 
-                            <button
-                                onClick={() => signOut()}
-                                className="jrpg-button px-6 py-2 font-pixel text-sm hover:text-red-400 transition-colors"
-                            >
-                                Sign Out
-                            </button>
+                                <button
+                                    onClick={() => signOut()}
+                                    className="jrpg-button px-6 py-2 font-pixel text-sm hover:text-red-400 transition-colors"
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
                         </>
                     ) : (
                         <button
@@ -71,6 +90,47 @@ export default function Config() {
                     )}
                 </div>
             </div>
+
+            {session && (
+                <div className="jrpg-panel flex flex-col gap-6 p-6 mt-6 relative">
+                    <div className="flex flex-col gap-2">
+                        <h2 className="text-lg font-pixel text-[#7fc0ff] jrpg-text-shadow">Data Import</h2>
+                        <p className="text-sm font-pixel text-gray-300 leading-relaxed max-w-2xl">
+                            Upload a game collection CSV file to import records into the database. Dreamcast games will be parsed and upserted.
+                        </p>
+                    </div>
+
+                    <form action={handleImport} className="flex flex-col sm:flex-row gap-4 items-end mt-4">
+                        <div className="flex flex-col gap-2 flex-1">
+                            <label htmlFor="csvFile" className="text-sm font-pixel text-gray-400">
+                                Select CSV File
+                            </label>
+                            <input
+                                type="file"
+                                id="csvFile"
+                                name="csvFile"
+                                accept=".csv"
+                                required
+                                className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-pixel file:bg-[#7fc0ff]/20 file:text-[#7fc0ff] hover:file:bg-[#7fc0ff]/30 transition-colors file:cursor-pointer p-2 bg-black/40 border border-[#7fc0ff]/30 rounded-md"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={isImporting}
+                            className="jrpg-button px-6 py-2.5 font-pixel text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        >
+                            {isImporting ? "Importing..." : "Run Import"}
+                        </button>
+                    </form>
+
+                    {importResult && (
+                        <div className={`p-4 rounded-md font-pixel text-sm border ${importResult.success ? "bg-green-900/30 border-green-500/50 text-green-300" : "bg-red-900/30 border-red-500/50 text-red-300"}`}>
+                            {importResult.message}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
+

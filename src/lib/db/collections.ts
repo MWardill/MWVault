@@ -19,3 +19,38 @@ export async function getCollectionByConsoleIdFromDb(consoleId: number) {
 
     return collection;
 }
+
+export type CollectionInsertInput = {
+    userId: number;
+    gameId: number;
+    hasBox?: boolean;
+    hasManual?: boolean;
+    isSealed?: boolean;
+    isWishlist?: boolean;
+    conditionRating?: number;
+    purchasePrice?: string | null;
+    purchaseDate?: string | null;
+    notes?: string | null;
+};
+
+export async function insertCollectionRecords(records: CollectionInsertInput[]) {
+    let insertedCount = 0;
+    for (const record of records) {
+        await db.insert(gamesCollection).values(record).onConflictDoUpdate({
+            target: [gamesCollection.userId, gamesCollection.gameId],
+            set: {
+                hasBox: record.hasBox,
+                hasManual: record.hasManual,
+                isSealed: record.isSealed,
+                isWishlist: record.isWishlist,
+                conditionRating: record.conditionRating,
+                purchasePrice: record.purchasePrice,
+                purchaseDate: record.purchaseDate,
+                notes: record.notes,
+                updatedAt: new Date(),
+            }
+        });
+        insertedCount++;
+    }
+    return insertedCount;
+}

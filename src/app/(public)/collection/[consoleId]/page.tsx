@@ -30,11 +30,17 @@ export default async function ConsoleCollectionPage({
                         </p>
                     </div>
                 ) : (
-                    <div className="w-full">
-                        <table className="w-full text-left font-pixel text-xs text-white">
+                    <div className="w-full overflow-x-hidden">
+                        <table className="w-full table-fixed text-left font-pixel text-xs text-white">
+                            <colgroup>
+                                <col className="w-auto" />
+                                <col className="w-16" />
+                                <col className="w-16" />
+                                <col className="w-16 hidden sm:table-column" />
+                            </colgroup>
                             <thead className="bg-[#2A2D3E] sticky top-0 z-10 border-b-2 border-white/20">
                                 <tr>
-                                    <th className="p-3 md:p-4 text-slate-300jrpg-text-shadow">Title</th>
+                                    <th className="p-3 md:p-4 text-slate-300 jrpg-text-shadow">Title</th>
                                     <th className="p-3 md:p-4 text-center text-slate-300 jrpg-text-shadow">Box</th>
                                     <th className="p-3 md:p-4 text-center text-slate-300 jrpg-text-shadow">Manual</th>
                                     <th className="p-3 md:p-4 text-center text-slate-300 jrpg-text-shadow hidden sm:table-cell">Cond.</th>
@@ -44,14 +50,14 @@ export default async function ConsoleCollectionPage({
                                 {collection.map((game) => (
                                     <tr key={game.id} className="border-b border-white/10 hover:bg-white/5 transition-colors group">
                                         <td className="p-3 md:p-4">
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-4 min-w-0">
                                                 {game.imageUrl && (
                                                     <div className="w-10 h-10 hidden sm:block flex-shrink-0 bg-[#1A1C29] p-1 border border-white/10 rounded">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                                         <img src={game.imageUrl} alt={game.title} className="w-full h-full object-cover rounded-sm opacity-90 group-hover:opacity-100 transition-opacity" />
                                                     </div>
                                                 )}
-                                                <span className="text-sm md:text-base text-slate-100 drop-shadow-md">{game.title}</span>
+                                                <span className="text-sm md:text-base text-slate-100 drop-shadow-md truncate">{game.title}</span>
                                             </div>
                                         </td>
                                         <td className="p-3 md:p-4 text-center">

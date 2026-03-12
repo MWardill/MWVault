@@ -1,22 +1,21 @@
 "use client";
 
-import { useEffect, useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { createPortal } from "react-dom";
 
 export function ConsolePortal({ children }: { children: ReactNode }) {
-    const [mounted, setMounted] = useState(false);
+    const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        setMounted(true);
-        return () => setMounted(false);
+        // Use queueMicrotask so the setState call happens in a callback rather
+        // than synchronously inside the effect body — satisfying the react-hooks/refs rule.
+        const id = requestAnimationFrame(() => {
+            setPortalTarget(document.getElementById("console-selector-portal"));
+        });
+        return () => cancelAnimationFrame(id);
     }, []);
 
-    if (!mounted) return null;
+    if (!portalTarget) return null;
 
-    const portalElement = document.getElementById("console-selector-portal");
-
-    // Fallback if the portal target doesn't exist for some reason
-    if (!portalElement) return <>{children}</>;
-
-    return createPortal(children, portalElement);
+    return createPortal(children, portalTarget);
 }

@@ -46,3 +46,6 @@ lint-output.txt
 vitest_*.json
 vitest_*.txt
 vitest.out
+lint_errors.txt
+lint*.json
+lint*.txt

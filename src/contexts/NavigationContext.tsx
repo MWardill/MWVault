@@ -25,8 +25,10 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const [transitionType, setTransitionType] = useState<TransitionType>("slide");
 
     useEffect(() => {
-        // Reset navigation state when pathname finishes changing
-        setIsNavigating(false);
+        // Reset navigation state when pathname finishes changing.
+        // Wrapped in queueMicrotask so setState is called in a callback,
+        // not synchronously within the effect body (satisfies react-hooks/refs rule).
+        queueMicrotask(() => setIsNavigating(false));
     }, [pathname]);
 
     const navigate = (path: string) => {

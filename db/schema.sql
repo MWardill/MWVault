@@ -55,18 +55,25 @@ CREATE TABLE IF NOT EXISTS games_collection (
     has_box BOOLEAN DEFAULT false,
     has_manual BOOLEAN DEFAULT false,
     is_sealed BOOLEAN DEFAULT false,
+    is_wishlist BOOLEAN DEFAULT false,
     condition_rating INTEGER CHECK (condition_rating >= 1 AND condition_rating <= 10), -- 1-10 scale
     purchase_price DECIMAL(10, 2),
     purchase_date DATE,
     notes TEXT,
 
     added_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    -- Unique per user per game (supports upsert logic)
+    CONSTRAINT uq_user_game UNIQUE (user_id, game_id)
 );
 
 -- Indexes for optimal querying
 CREATE INDEX IF NOT EXISTS idx_games_console ON games(console_id);
-CREATE INDEX IF NOT EXISTS idx_games_collection_user_game ON games_collection(user_id, game_id);
+-- Note: The unique constraint on (user_id, game_id) already covers this index
+-- CREATE INDEX IF NOT EXISTS idx_games_collection_user_game ON games_collection(user_id, game_id);
+-- Run this migration if the table was already created without the unique constraint:
+ALTER TABLE games_collection ADD CONSTRAINT IF NOT EXISTS uq_user_game UNIQUE (user_id, game_id);
 
 -- SEED DATA
 

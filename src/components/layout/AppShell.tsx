@@ -66,12 +66,12 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
                         <div
                             style={{ viewTransitionName: transitionType === 'slide' ? 'main-panel' : undefined }}
-                            className="stippled jrpg-panel flex-1 flex flex-col pt-3 pb-6 px-4 md:pr-46 lg:pr-58 relative"
+                            className="stippled jrpg-panel flex-1 flex flex-col pt-3 pb-6 px-4 md:pr-46 lg:pr-58 relative overflow-x-hidden"
                         >
                             <div id="console-selector-portal" className="w-full shrink-0 z-30 relative" />
                             <div
                                 style={{ viewTransitionName: transitionType === 'fade' ? 'content-fade' : undefined }}
-                                className="flex-1 flex flex-col w-full relative min-h-0"
+                                className="flex-1 flex flex-col w-full relative min-h-0 min-w-0 overflow-x-hidden"
                             >
                                 {children}
                             </div>
