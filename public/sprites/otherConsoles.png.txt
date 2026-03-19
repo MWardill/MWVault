@@ -1,0 +1,1 @@
+otherConsoles_01.png.png 0 0, otherConsoles_02.png.png 718 367, otherConsoles_03.png.png 360 94, otherConsoles_04.png.png 696 94, otherConsoles_05.png.png 95 352, otherConsoles_06.png.png 360 408, otherConsoles_07.png.png 54 743, otherConsoles_08.png.png 376 716, otherConsoles_09.png.png 712 718.
