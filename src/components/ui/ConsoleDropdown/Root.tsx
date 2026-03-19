@@ -5,7 +5,14 @@ import { useParams } from "next/navigation";
 import { useNavigation } from "@/contexts/NavigationContext";
 import { ConsoleDropdownContext } from "./context";
 
-export function Root({ children, onSelect }: { children: ReactNode, onSelect?: (shortCode: string) => void }) {
+interface RootProps {
+    children: ReactNode;
+    onSelect?: (shortCode: string) => void;
+    /** Base path used for navigation. Defaults to "/collection". */
+    basePath?: string;
+}
+
+export function Root({ children, onSelect, basePath = "/collection" }: RootProps) {
     const [isOpen, setIsOpen] = useState(false);
     const { navigate } = useNavigation();
     const params = useParams();
@@ -39,12 +46,12 @@ export function Root({ children, onSelect }: { children: ReactNode, onSelect?: (
         // Wait for the Framer Motion AnimatePresence exit animation (0.2s) in Content.tsx to finish
         // before executing the route transition, so it doesn't clip visually.
         setTimeout(() => {
-            navigate(`/collection/${shortCode}`);
+            navigate(`${basePath}/${shortCode}`);
         }, 200);
     };
 
     return (
-        <ConsoleDropdownContext.Provider value={{ isOpen, setIsOpen, currentConsoleId, selectConsole, selectedItemRef }}>
+        <ConsoleDropdownContext.Provider value={{ isOpen, setIsOpen, currentConsoleId, basePath, selectConsole, selectedItemRef }}>
             <div className="relative w-full z-30 mb-4" ref={dropdownRef}>
                 {children}
             </div>

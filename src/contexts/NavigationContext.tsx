@@ -34,9 +34,10 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
     const navigate = (path: string) => {
         if (path === pathname) return;
 
-        // If navigating between collection pages, use a simple fade instead of a full layout slide
+        // If navigating within collection or wishlist, use a simple fade instead of a full layout slide
         const isCollectionToCollection = pathname.startsWith('/collection') && path.startsWith('/collection');
-        setTransitionType(isCollectionToCollection ? 'fade' : 'slide');
+        const isWishlistToWishlist = pathname.startsWith('/wishlist') && path.startsWith('/wishlist');
+        setTransitionType((isCollectionToCollection || isWishlistToWishlist) ? 'fade' : 'slide');
 
         setIsNavigating(true);
 

@@ -17,6 +17,7 @@ export type CollectionGame = {
     isWishlist: boolean | null;
     conditionRating: number | null;
     purchasePrice: string | null;
+    currentPrice?: string | null; // Market reference price (from CSV PriceCIB)
     notes: string | null;
 };
 
@@ -166,22 +167,30 @@ export function GameDetailPanel({ game, onClose }: GameDetailPanelProps) {
                                                     £{game.purchasePrice}
                                                 </p>
                                             )}
+                                            {game.currentPrice && !game.purchasePrice && (
+                                                <p className="font-pixel text-[9px] text-amber-300 tracking-wider uppercase leading-none">
+                                                    <span className="text-slate-400">CIB ~:</span>{" "}
+                                                    £{game.currentPrice}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Ownership status */}
+                                {/* Ownership status — only non-trivial flags */}
                                 <div className="border-t border-white/15 pt-4">
                                     <p className="font-pixel text-[8px] text-slate-400 tracking-widest uppercase mb-3">
                                         Collection Status
                                     </p>
                                     <div className="flex flex-wrap gap-4">
-                                        <StatusDot active={game.hasBox} label="Box" />
-                                        <StatusDot active={game.hasManual} label="Manual" />
-                                        <StatusDot active={game.isSealed} label="Sealed" />
-                                        <StatusDot active={game.isWishlist} label="Wishlist" />
+                                        {game.isWishlist ? (
+                                            <StatusDot active={game.isSealed} label="Sealed" />
+                                        ) : (
+                                            <StatusDot active={game.isSealed} label="Sealed" />
+                                        )}
                                     </div>
                                 </div>
+
 
                                 {/* Description */}
                                 {game.summary && (

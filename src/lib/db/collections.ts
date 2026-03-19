@@ -1,31 +1,72 @@
 import { db } from "@/lib/db";
-import { games, gamesCollection } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { games, gamesCollection, consoles } from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
+
+// Shared select shape for both collection and wishlist
+const gameSelectShape = {
+    id: gamesCollection.id,
+    title: games.title,
+    hasBox: gamesCollection.hasBox,
+    hasManual: gamesCollection.hasManual,
+    isSealed: gamesCollection.isSealed,
+    isWishlist: gamesCollection.isWishlist,
+    conditionRating: gamesCollection.conditionRating,
+    purchasePrice: gamesCollection.purchasePrice,
+    notes: gamesCollection.notes,
+    imageUrl: games.imageUrl,
+    summary: games.summary,
+    developer: games.developer,
+    releaseDate: games.releaseDate,
+    currentPrice: games.currentPrice,
+};
+
+// ─── Collection (owned games only) ───────────────────────────────────────────
 
 export async function getCollectionByConsoleIdFromDb(consoleId: number) {
     const collection = await db
-        .select({
-            id: gamesCollection.id,
-            title: games.title,
-            hasBox: gamesCollection.hasBox,
-            hasManual: gamesCollection.hasManual,
-            isSealed: gamesCollection.isSealed,
-            isWishlist: gamesCollection.isWishlist,
-            conditionRating: gamesCollection.conditionRating,
-            purchasePrice: gamesCollection.purchasePrice,
-            notes: gamesCollection.notes,
-            imageUrl: games.imageUrl,
-            summary: games.summary,
-            developer: games.developer,
-            releaseDate: games.releaseDate,
-        })
+        .select(gameSelectShape)
         .from(gamesCollection)
         .innerJoin(games, eq(gamesCollection.gameId, games.id))
         .where(eq(games.consoleId, consoleId))
         .orderBy(games.title);
 
-    return collection;
+    // Filter to owned-only: isWishlist is false (or null/not set)
+    return collection.filter(g => !g.isWishlist);
 }
+
+// ─── Wishlist ─────────────────────────────────────────────────────────────────
+
+export async function getWishlistByConsoleIdFromDb(consoleId: number) {
+    const wishlist = await db
+        .select(gameSelectShape)
+        .from(gamesCollection)
+        .innerJoin(games, eq(gamesCollection.gameId, games.id))
+        .where(eq(games.consoleId, consoleId))
+        .orderBy(games.currentPrice ? desc(games.currentPrice) : games.title);
+
+    return wishlist.filter(g => g.isWishlist === true);
+}
+
+export type WishlistGame = Awaited<ReturnType<typeof getWishlistByConsoleIdFromDb>>[number];
+
+export async function getWishlistAllFromDb() {
+    const wishlist = await db
+        .select({
+            ...gameSelectShape,
+            consoleName: consoles.name,
+            consoleShortCode: consoles.shortCode,
+        })
+        .from(gamesCollection)
+        .innerJoin(games, eq(gamesCollection.gameId, games.id))
+        .innerJoin(consoles, eq(games.consoleId, consoles.id))
+        .orderBy(games.title);
+
+    return wishlist.filter(g => g.isWishlist === true);
+}
+
+export type WishlistGameWithConsole = Awaited<ReturnType<typeof getWishlistAllFromDb>>[number];
+
+// ─── Insert / upsert ─────────────────────────────────────────────────────────
 
 export type CollectionInsertInput = {
     userId: number;

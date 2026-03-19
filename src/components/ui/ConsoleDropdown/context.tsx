@@ -6,6 +6,7 @@ export interface ConsoleDropdownContextType {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
     currentConsoleId: string | null;
+    basePath: string;
     selectConsole: (shortCode: string) => void;
     selectedItemRef: (node: HTMLButtonElement | null) => void;
 }
