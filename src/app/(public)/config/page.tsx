@@ -20,7 +20,7 @@ export default function Config() {
         setIsImporting(false);
         setImportResult({
             success: result.success,
-            message: result.success ? result.message : result.error || "An error occurred.",
+            message: result.message ?? result.error ?? "An error occurred.",
         });
     }
 
