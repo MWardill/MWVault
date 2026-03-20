@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { consoles, games } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export type IgdbGameUpsertInput = {
     title: string;
@@ -24,31 +24,31 @@ export async function upsertGamesFromIgdb(gamesToInsert: IgdbGameUpsertInput[], 
     }
     const consoleId = consoleRecord[0].id;
 
-    // 2. Upsert games into DB
-    let upsertCount = 0;
-    for (const item of gamesToInsert) {
-        await db.insert(games).values({
-            consoleId: consoleId,
+    if (gamesToInsert.length === 0) return 0;
+
+    // 2. Single bulk upsert — one round-trip regardless of list size
+    await db.insert(games).values(
+        gamesToInsert.map(item => ({
+            consoleId,
             title: item.title,
             igdbId: item.igdbId,
             summary: item.summary,
             developer: item.developer,
             releaseDate: item.releaseDate,
             imageUrl: item.imageUrl,
-        }).onConflictDoUpdate({
-            target: games.igdbId,
-            set: {
-                title: item.title,
-                summary: item.summary,
-                developer: item.developer,
-                releaseDate: item.releaseDate,
-                imageUrl: item.imageUrl,
-                updatedAt: new Date(),
-            }
-        });
+        }))
+    ).onConflictDoUpdate({
+        target: games.igdbId,
+        set: {
+            title: sql`excluded.title`,
+            summary: sql`excluded.summary`,
+            developer: sql`excluded.developer`,
+            releaseDate: sql`excluded.release_date`,
+            imageUrl: sql`excluded.image_url`,
+            updatedAt: new Date(),
+        },
+    });
 
-        upsertCount++;
-    }
-
-    return upsertCount;
+    return gamesToInsert.length;
 }
+

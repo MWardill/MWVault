@@ -7,29 +7,29 @@ import { CONSOLE_IGDB_MAP, SyncResult } from "./igdb-platforms";
 
 interface IGDBResponseItem {
     id: number;
-    date: number;
-    game?: {
+    name?: string;
+    summary?: string;
+    cover?: {
+        id: number;
+        image_id?: string;
+    };
+    involved_companies?: {
+        id: number;
+        developer?: boolean;
+        company?: {
+            id: number;
+            name?: string;
+        };
+    }[];
+    platforms?: {
         id: number;
         name?: string;
-        summary?: string;
-        cover?: {
-            id: number;
-            image_id?: string;
-        };
-        involved_companies?: {
-            id: number;
-            developer?: boolean;
-            company?: {
-                id: number;
-                name?: string;
-            };
-        }[];
-    };
-    human: string;
-    platform: {
+    }[];
+    release_dates?: {
         id: number;
-        name: string;
-    };
+        date?: number; // Unix timestamp
+        human?: string; // e.g., "Q3 1992" or "1993-05-14"
+    }[];
 }
 
 interface TwitchAuthResponse {
@@ -57,27 +57,27 @@ async function fetchAllReleaseDatesForPlatform(
     token: string,
     igdbPlatformId: number
 ): Promise<IGDBResponseItem[]> {
-    const igdbUrl = "https://api.igdb.com/v4/release_dates";
+    const igdbUrl = "https://api.igdb.com/v4/games";
     const allItems: IGDBResponseItem[] = [];
     let offset = 0;
+
 
     while (true) {
         const query = `
             fields
-            game.name,
-            game.summary,
-            game.cover.image_id,
-            game.involved_companies.company.name,
-            game.involved_companies.developer,
-            platform.name,
-            date,
-            human;
-            where platform = ${igdbPlatformId} & release_region = 1;
-            sort date asc;
+                name,
+                summary,
+                cover.image_id,
+                involved_companies.company.name,
+                involved_companies.developer,
+                platforms.name,
+                release_dates.date,
+                release_dates.human;
+            where platforms = (${igdbPlatformId}) & name = "Streets of Rage";
+            sort first_release_date asc;
             limit ${PAGE_SIZE};
             offset ${offset};
         `;
-
         const res = await fetch(igdbUrl, {
             method: "POST",
             headers: {
@@ -105,34 +105,36 @@ async function fetchAllReleaseDatesForPlatform(
 // ─── Format IGDB response → DB input ─────────────────────────────────────────
 
 function formatGames(data: IGDBResponseItem[]): IgdbGameUpsertInput[] {
-    const seen = new Set<number>();
     const result: IgdbGameUpsertInput[] = [];
 
     for (const item of data) {
-        if (!item.game?.name) continue;
-        if (seen.has(item.game.id)) continue; // deduplicate by IGDB game ID
-        seen.add(item.game.id);
+        // 1. Everything is top-level now, so no more 'item.game.'
+        if (!item.name) continue;
 
         let developerName: string | null = null;
-        if (item.game.involved_companies) {
-            const devs = item.game.involved_companies.filter(c => c.developer && c.company?.name);
+        if (item.involved_companies) {
+            const devs = item.involved_companies.filter(c => c.developer && c.company?.name);
             if (devs.length > 0) developerName = devs[0].company?.name ?? null;
         }
 
         let imageUrl: string | null = null;
-        if (item.game.cover?.image_id) {
-            imageUrl = `https://images.igdb.com/igdb/image/upload/t_cover_big/${item.game.cover.image_id}.jpg`;
+        if (item.cover?.image_id) {
+            imageUrl = `https://images.igdb.com/igdb/image/upload/t_cover_big/${item.cover.image_id}.jpg`;
         }
 
         let releaseDateStr: string | null = null;
-        if (item.date) {
-            releaseDateStr = new Date(item.date * 1000).toISOString().split("T")[0];
+        // 2. release_dates is now an array. We'll grab the first valid unix timestamp.
+        // (If you specifically want the European date, we can filter for it here)
+        const firstValidDate = item.release_dates?.find((rd: any) => rd.date)?.date;
+
+        if (firstValidDate) {
+            releaseDateStr = new Date(firstValidDate * 1000).toISOString().split("T")[0];
         }
 
         result.push({
-            title: item.game.name,
-            igdbId: item.game.id,
-            summary: item.game.summary,
+            title: item.name,
+            igdbId: item.id, // 3. The ID is directly on the item
+            summary: item.summary,
             developer: developerName,
             releaseDate: releaseDateStr,
             imageUrl,
