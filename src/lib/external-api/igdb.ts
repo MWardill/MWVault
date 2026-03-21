@@ -73,7 +73,7 @@ async function fetchAllReleaseDatesForPlatform(
                 platforms.name,
                 release_dates.date,
                 release_dates.human;
-            where platforms = (${igdbPlatformId}) & name = "Streets of Rage";
+            where platforms = (${igdbPlatformId});
             sort first_release_date asc;
             limit ${PAGE_SIZE};
             offset ${offset};
