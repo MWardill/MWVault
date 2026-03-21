@@ -1,15 +1,19 @@
 import { db } from "@/lib/db";
 import { games, gamesCollection } from "@/lib/db/schema";
-import { eq, and, asc, count } from "drizzle-orm";
+import { eq, and, asc, count, ilike } from "drizzle-orm";
 
-export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId: number, page: number = 1, pageSize: number = 48) {
+export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId: number, page: number = 1, pageSize: number = 48, searchQuery?: string) {
     const offset = (page - 1) * pageSize;
+
+    const baseWhere = searchQuery
+        ? and(eq(games.consoleId, consoleId), ilike(games.title, `%${searchQuery}%`))
+        : eq(games.consoleId, consoleId);
 
     const [totalCountResult] = await db
         .select({ value: count() })
         .from(games)
-        .where(eq(games.consoleId, consoleId));
-        
+        .where(baseWhere);
+
     const totalPages = Math.ceil(totalCountResult.value / pageSize);
 
     const browseGames = await db
@@ -32,7 +36,7 @@ export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId:
                 eq(gamesCollection.userId, userId)
             )
         )
-        .where(eq(games.consoleId, consoleId))
+        .where(baseWhere)
         .orderBy(asc(games.title))
         .limit(pageSize)
         .offset(offset);

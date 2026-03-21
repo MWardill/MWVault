@@ -29,9 +29,9 @@ export async function getConsoleByShortCode(shortCode: string) {
     return await getConsoleByShortCodeFromDb(shortCode);
 }
 
-export async function getBrowseGamesByConsoleId(consoleId: number, page: number = 1) {
+export async function getBrowseGamesByConsoleId(consoleId: number, page: number = 1, searchQuery?: string) {
     const userId = await getUserId();
-    return await getBrowseGamesByConsoleIdFromDb(consoleId, userId, page);
+    return await getBrowseGamesByConsoleIdFromDb(consoleId, userId, page, 48, searchQuery);
 }
 
 export async function addGameToCollection(gameId: number, consoleShortCode: string) {
