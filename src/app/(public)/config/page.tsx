@@ -5,18 +5,25 @@ import Sprite from "@/components/images/Sprite";
 import Image from "next/image";
 import { useState } from "react";
 import { importCollectionFromCsv } from "@/lib/actions/collection";
+import { syncIgdbGamesForPlatform } from "@/lib/external-api/igdb";
+import { CONSOLE_IGDB_MAP, SyncResult } from "@/lib/external-api/igdb-platforms";
 
 export default function Config() {
     const { data: session, status } = useSession();
+
+    // CSV Import state
     const [isImporting, setIsImporting] = useState(false);
     const [importResult, setImportResult] = useState<{ success: boolean; message: string } | null>(null);
+
+    // IGDB Sync state
+    const [isSyncing, setIsSyncing] = useState(false);
+    const [syncProgress, setSyncProgress] = useState<SyncResult[]>([]);
+    const [syncCurrentPlatform, setSyncCurrentPlatform] = useState<string | null>(null);
 
     async function handleImport(formData: FormData) {
         setIsImporting(true);
         setImportResult(null);
-
         const result = await importCollectionFromCsv(formData);
-
         setIsImporting(false);
         setImportResult({
             success: result.success,
@@ -24,12 +31,33 @@ export default function Config() {
         });
     }
 
+    async function handleIgdbSync() {
+        setIsSyncing(true);
+        setSyncProgress([]);
+
+        const platforms = Object.keys(CONSOLE_IGDB_MAP);
+
+        for (const shortCode of platforms) {
+            const info = CONSOLE_IGDB_MAP[shortCode];
+            setSyncCurrentPlatform(info.name);
+            const result = await syncIgdbGamesForPlatform(shortCode);
+            setSyncProgress(prev => [...prev, result]);
+        }
+
+        setSyncCurrentPlatform(null);
+        setIsSyncing(false);
+    }
+
+    const totalSynced = syncProgress.reduce((acc, r) => acc + r.count, 0);
+    const syncErrors = syncProgress.filter(r => r.error);
+
     return (
-        <div className="flex-1 flex flex-col w-full relative">
+        <div className="flex-1 flex flex-col w-full relative min-h-0 overflow-y-auto">
             <h1 className="text-xl md:text-2xl font-pixel text-white jrpg-text-shadow tracking-widest pl-2 pt-2 mb-6">
                 System Config
             </h1>
 
+            {/* Auth panel */}
             <div className="jrpg-panel flex flex-col gap-6 p-6 relative">
                 <div className="flex flex-col gap-2">
                     <h2 className="text-lg font-pixel text-[#7fc0ff] jrpg-text-shadow">Authentication</h2>
@@ -63,7 +91,6 @@ export default function Config() {
                                         <span className="text-gray-400 font-pixel text-xs mt-1">{session.user?.email}</span>
                                     </div>
                                 </div>
-
                                 <button
                                     onClick={() => signOut()}
                                     className="jrpg-button px-6 py-2 font-pixel text-sm hover:text-red-400 transition-colors"
@@ -92,45 +119,101 @@ export default function Config() {
             </div>
 
             {session && (
-                <div className="jrpg-panel flex flex-col gap-6 p-6 mt-6 relative">
-                    <div className="flex flex-col gap-2">
-                        <h2 className="text-lg font-pixel text-[#7fc0ff] jrpg-text-shadow">Data Import</h2>
-                        <p className="text-sm font-pixel text-gray-300 leading-relaxed max-w-2xl">
-                            Upload a game collection CSV file to import records into the database. Dreamcast games will be parsed and upserted.
-                        </p>
+                <>
+                    {/* CSV Import */}
+                    <div className="jrpg-panel flex flex-col gap-6 p-6 mt-6 relative">
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-lg font-pixel text-[#7fc0ff] jrpg-text-shadow">Data Import</h2>
+                            <p className="text-sm font-pixel text-gray-300 leading-relaxed max-w-2xl">
+                                Upload a game collection CSV file to import records into the database. All supported platforms will be parsed and upserted.
+                            </p>
+                        </div>
+
+                        <form action={handleImport} className="flex flex-col lg:flex-row gap-4 items-start lg:items-end mt-4">
+                            <div className="flex flex-col gap-2 flex-1">
+                                <label htmlFor="csvFile" className="text-sm font-pixel text-gray-400">
+                                    Select CSV File
+                                </label>
+                                <input
+                                    type="file"
+                                    id="csvFile"
+                                    name="csvFile"
+                                    accept=".csv"
+                                    required
+                                    className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-pixel file:bg-[#7fc0ff]/20 file:text-[#7fc0ff] hover:file:bg-[#7fc0ff]/30 transition-colors file:cursor-pointer p-2 bg-black/40 border border-[#7fc0ff]/30 rounded-md"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={isImporting}
+                                className="jrpg-button px-6 py-2.5 font-pixel text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                            >
+                                {isImporting ? "Importing..." : "Run Import"}
+                            </button>
+                        </form>
+
+                        {importResult && (
+                            <div className={`p-4 rounded-md font-pixel text-sm border ${importResult.success ? "bg-green-900/30 border-green-500/50 text-green-300" : "bg-red-900/30 border-red-500/50 text-red-300"}`}>
+                                {importResult.message}
+                            </div>
+                        )}
                     </div>
 
-                    <form action={handleImport} className="flex flex-col sm:flex-row gap-4 items-end mt-4">
-                        <div className="flex flex-col gap-2 flex-1">
-                            <label htmlFor="csvFile" className="text-sm font-pixel text-gray-400">
-                                Select CSV File
-                            </label>
-                            <input
-                                type="file"
-                                id="csvFile"
-                                name="csvFile"
-                                accept=".csv"
-                                required
-                                className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-pixel file:bg-[#7fc0ff]/20 file:text-[#7fc0ff] hover:file:bg-[#7fc0ff]/30 transition-colors file:cursor-pointer p-2 bg-black/40 border border-[#7fc0ff]/30 rounded-md"
-                            />
+                    {/* IGDB Sync */}
+                    <div className="jrpg-panel flex flex-col gap-6 p-6 mt-6 relative">
+                        <div className="flex flex-col gap-2">
+                            <h2 className="text-lg font-pixel text-[#7fc0ff] jrpg-text-shadow">IGDB Game Sync</h2>
+                            <p className="text-sm font-pixel text-gray-300 leading-relaxed max-w-2xl">
+                                Fetches game metadata (title, cover art, developer, release date) from IGDB for all supported platforms. Iterates each platform in sequence with automatic pagination. This may take several minutes.
+                            </p>
                         </div>
-                        <button
-                            type="submit"
-                            disabled={isImporting}
-                            className="jrpg-button px-6 py-2.5 font-pixel text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                        >
-                            {isImporting ? "Importing..." : "Run Import"}
-                        </button>
-                    </form>
 
-                    {importResult && (
-                        <div className={`p-4 rounded-md font-pixel text-sm border ${importResult.success ? "bg-green-900/30 border-green-500/50 text-green-300" : "bg-red-900/30 border-red-500/50 text-red-300"}`}>
-                            {importResult.message}
+                        <div className="flex flex-wrap items-center gap-4 mt-2">
+                            <button
+                                onClick={handleIgdbSync}
+                                disabled={isSyncing}
+                                className="jrpg-button px-6 py-2.5 font-pixel text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                            >
+                                {isSyncing ? "Syncing..." : "Sync All Platforms"}
+                            </button>
+
+                            {isSyncing && syncCurrentPlatform && (
+                                <p className="font-pixel text-xs text-amber-300 animate-pulse">
+                                    Processing: {syncCurrentPlatform}
+                                </p>
+                            )}
                         </div>
-                    )}
-                </div>
+
+                        {/* Progress log */}
+                        {syncProgress.length > 0 && (
+                            <div className="mt-2 flex flex-col gap-1 max-h-48 overflow-y-auto bg-black/30 border border-white/10 rounded-md p-3">
+                                {syncProgress.map(r => (
+                                    <div key={r.shortCode} className="flex items-center gap-2 font-pixel text-[9px]">
+                                        <span className={r.error ? "text-red-400" : "text-emerald-400"}>
+                                            {r.error ? "✗" : "✓"}
+                                        </span>
+                                        <span className="text-slate-300 w-32 truncate">{r.name}</span>
+                                        {r.error ? (
+                                            <span className="text-red-400 truncate">{r.error}</span>
+                                        ) : (
+                                            <span className="text-slate-400">{r.count} games</span>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {!isSyncing && (
+                                    <div className="border-t border-white/10 mt-2 pt-2 font-pixel text-[9px] text-slate-300">
+                                        Total: {totalSynced} games synced
+                                        {syncErrors.length > 0 && (
+                                            <span className="text-red-400 ml-3">{syncErrors.length} platform error(s)</span>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </>
             )}
         </div>
     );
 }
-

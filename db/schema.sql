@@ -104,7 +104,13 @@ INSERT INTO consoles (short_code, name, icon_path) VALUES
 ('ps4', 'PlayStation 4', '/sprites/ps4.png'),
 ('ps5', 'PlayStation 5', '/sprites/ps5.png'),
 ('xbox', 'Xbox', '/sprites/xbox.png'),
-('xbox360', 'Xbox 360', '/sprites/xbox360.png')
+('xbox360', 'Xbox 360', '/sprites/xbox360.png'),
+-- New consoles (using psone sprite as placeholder where no dedicated sprite exists)
+('ps2', 'PlayStation 2', '/sprites/psone.png'),
+('gameboycolor', 'Game Boy Color', '/sprites/gameboy.png'),
+('wiiu', 'Nintendo Wii U', '/sprites/psone.png'),
+('pc', 'PC', '/sprites/psone.png'),
+('segacd', 'Sega CD', '/sprites/megadrive.png')
 ON CONFLICT (short_code) DO NOTHING;
 
 -- Insert Example Games

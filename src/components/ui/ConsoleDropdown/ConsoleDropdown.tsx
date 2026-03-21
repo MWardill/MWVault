@@ -14,7 +14,13 @@ interface ConsoleDataType {
     iconPath: string | null;
 }
 
-export function ConsoleDropdownMain({ consoles }: { consoles: ConsoleDataType[] }) {
+interface ConsoleDropdownMainProps {
+    consoles: ConsoleDataType[];
+    /** Base path for navigation. Defaults to "/collection". */
+    basePath?: string;
+}
+
+export function ConsoleDropdownMain({ consoles, basePath = "/collection" }: ConsoleDropdownMainProps) {
     const params = useParams();
     const currentConsoleId = typeof params?.consoleId === 'string' ? params.consoleId : null;
 
@@ -30,7 +36,7 @@ export function ConsoleDropdownMain({ consoles }: { consoles: ConsoleDataType[] 
     const selectedConsole = consoles.find(c => c.shortCode === activeConsoleId);
 
     return (
-        <Root onSelect={setOptimisticConsoleId}>
+        <Root onSelect={setOptimisticConsoleId} basePath={basePath}>
             <Trigger
                 selectedName={selectedConsole?.name}
                 selectedIconPath={selectedConsole?.iconPath}

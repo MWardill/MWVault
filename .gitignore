@@ -49,3 +49,4 @@ vitest.out
 lint_errors.txt
 lint*.json
 lint*.txt
+vitest_*.json

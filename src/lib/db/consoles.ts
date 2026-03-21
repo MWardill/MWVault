@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { consoles, gamesCollection, games } from "@/lib/db/schema";
-import { count, eq } from "drizzle-orm";
+import { count, eq, and, or, isNull } from "drizzle-orm";
 
 export async function getConsolesWithGameCountsFromDb() {
     const results = await db
@@ -12,7 +12,14 @@ export async function getConsolesWithGameCountsFromDb() {
         })
         .from(consoles)
         .leftJoin(games, eq(consoles.id, games.consoleId))
-        .leftJoin(gamesCollection, eq(games.id, gamesCollection.gameId))
+        .leftJoin(
+            gamesCollection,
+            and(
+                eq(games.id, gamesCollection.gameId),
+                // Only count owned games (not wishlist)
+                or(eq(gamesCollection.isWishlist, false), isNull(gamesCollection.isWishlist))
+            )
+        )
         .groupBy(consoles.id, consoles.shortCode, consoles.name, consoles.iconPath);
 
     return results
@@ -24,6 +31,7 @@ export async function getConsolesWithGameCountsFromDb() {
         }))
         .sort((a, b) => b.value - a.value);
 }
+
 
 export async function getConsoleByShortCodeFromDb(shortCode: string) {
     const [consoleData] = await db
