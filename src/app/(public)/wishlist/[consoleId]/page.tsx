@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getConsoleByShortCode, getWishlistByConsoleId } from "../actions";
-import { WishlistGrid } from "@/components/collection/WishlistGrid";
+import { WishlistConsoleClient } from "./WishlistConsoleClient";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +27,7 @@ export default async function ConsoleWishlistPage({
                     </p>
                 </div>
             ) : (
-                <WishlistGrid games={wishlist} />
+                <WishlistConsoleClient wishlist={wishlist} consoleId={consoleId} />
             )}
         </div>
     );

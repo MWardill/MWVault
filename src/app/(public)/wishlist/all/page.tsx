@@ -1,5 +1,5 @@
 import { getWishlistAll } from "../actions";
-import { WishlistGrid } from "@/components/collection/WishlistGrid";
+import { WishlistAllClient } from "./WishlistAllClient";
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +20,7 @@ export default async function WishlistAllPage() {
                     </p>
                 </div>
             ) : (
-                <WishlistGrid games={wishlist} />
+                <WishlistAllClient wishlist={wishlist} />
             )}
         </div>
     );

@@ -51,7 +51,9 @@ export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId:
     };
 }
 
-export type BrowseGame = Awaited<ReturnType<typeof getBrowseGamesByConsoleIdFromDb>>["games"][number];
+import type { Game } from "@/types/game";
+
+export type BrowseGame = Awaited<ReturnType<typeof getBrowseGamesByConsoleIdFromDb>>["games"][number] & Game;
 
 export async function addGameToCollectionDb(gameId: number, userId: number) {
     await db.insert(gamesCollection).values({

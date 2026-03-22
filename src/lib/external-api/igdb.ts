@@ -125,7 +125,7 @@ function formatGames(data: IGDBResponseItem[]): IgdbGameUpsertInput[] {
         let releaseDateStr: string | null = null;
         // 2. release_dates is now an array. We'll grab the first valid unix timestamp.
         // (If you specifically want the European date, we can filter for it here)
-        const firstValidDate = item.release_dates?.find((rd: any) => rd.date)?.date;
+        const firstValidDate = item.release_dates?.find((rd) => rd.date)?.date;
 
         if (firstValidDate) {
             releaseDateStr = new Date(firstValidDate * 1000).toISOString().split("T")[0];
