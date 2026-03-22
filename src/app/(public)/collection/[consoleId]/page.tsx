@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getConsoleByShortCode, getCollectionByConsoleId } from "../actions";
-import { GameGrid } from "@/components/collection/GameGrid";
+import { CollectionGridClient } from "./CollectionGridClient";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +30,7 @@ export default async function ConsoleCollectionPage({
                     </p>
                 </div>
             ) : (
-                <GameGrid games={collection} />
+                <CollectionGridClient games={collection} />
             )}
         </div>
     );

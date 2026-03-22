@@ -62,10 +62,12 @@ function initGlobalListeners() {
         if (!currentFocusedId || !currentEl) {
             if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"].includes(e.key)) {
                 e.preventDefault();
-                setFocusedElementId(selectables[0].id);
-                selectables[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                // Note: if it was Enter, we just focus on the first item visually but don't instantly click it. 
-                // That prevents accidental clicks when first selecting the UI.
+                // Start navigation in global scope only (skip any scoped nav-root elements)
+                const first = selectables.find(el => !el.closest('[data-nav-root]')) ?? selectables[0];
+                if (first) {
+                    setFocusedElementId(first.id);
+                    first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
             }
             return;
         }
@@ -88,12 +90,17 @@ function initGlobalListeners() {
         let bestMatch: HTMLElement | null = null;
         let shortestDistance = Infinity;
 
-        selectables.forEach((el) => {
-            if (el === currentEl) return;
+        // Respect nav-root scoping: if the focused element is inside a [data-nav-root],
+        // only navigate within that same root. Otherwise exclude any scoped elements.
+        const currentNavRoot = currentEl.closest<HTMLElement>('[data-nav-root]') ?? null;
+        const candidates = selectables.filter(el => {
+            if (el === currentEl) return false;
+            if (el.dataset.disabled === "true") return false;
+            const elNavRoot = el.closest<HTMLElement>('[data-nav-root]') ?? null;
+            return currentNavRoot ? elNavRoot === currentNavRoot : elNavRoot === null;
+        });
 
-            // Skip disabled elements
-            if (el.dataset.disabled === "true") return;
-
+        for (const el of candidates) {
             const rect = el.getBoundingClientRect();
             const center: Coordinate = {
                 x: rect.left + rect.width / 2,
@@ -111,23 +118,28 @@ function initGlobalListeners() {
             // to nearby but misaligned elements (like wide header bars).
             const orthoPenalty = 10;
 
+            // Guard cone: primary axis must be dominant, but allow a wider reach
+            // (3:1 ratio ≈ 72° cone) so edge elements like search bars and pagination
+            // are reachable from off-centre grid items.
+            const coneRatio = 3;
+
             if (e.key === "ArrowLeft") {
-                if (dx < 0 && Math.abs(dy) <= Math.abs(dx)) {
+                if (dx < 0 && Math.abs(dy) <= Math.abs(dx) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
                 }
             } else if (e.key === "ArrowRight") {
-                if (dx > 0 && Math.abs(dy) <= Math.abs(dx)) {
+                if (dx > 0 && Math.abs(dy) <= Math.abs(dx) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
                 }
             } else if (e.key === "ArrowUp") {
-                if (dy < 0 && Math.abs(dx) <= Math.abs(dy)) {
+                if (dy < 0 && Math.abs(dx) <= Math.abs(dy) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
                 }
             } else if (e.key === "ArrowDown") {
-                if (dy > 0 && Math.abs(dx) <= Math.abs(dy)) {
+                if (dy > 0 && Math.abs(dx) <= Math.abs(dy) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
                 }
@@ -137,11 +149,11 @@ function initGlobalListeners() {
                 shortestDistance = distance;
                 bestMatch = el;
             }
-        });
+        }
 
         if (bestMatch) {
-            setFocusedElementId((bestMatch as HTMLElement).id);
-            (bestMatch as HTMLElement).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            setFocusedElementId(bestMatch.id);
+            bestMatch.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     };
 

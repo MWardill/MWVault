@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { games, gamesCollection, consoles } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
+import type { Game } from "@/types/game";
 
 // Shared select shape for both collection and wishlist
 const gameSelectShape = {
@@ -47,7 +48,7 @@ export async function getWishlistByConsoleIdFromDb(consoleId: number) {
     return wishlist.filter(g => g.isWishlist === true);
 }
 
-export type WishlistGame = Awaited<ReturnType<typeof getWishlistByConsoleIdFromDb>>[number];
+export type WishlistGame = Awaited<ReturnType<typeof getWishlistByConsoleIdFromDb>>[number] & Game;
 
 export async function getWishlistAllFromDb() {
     const wishlist = await db
@@ -64,7 +65,7 @@ export async function getWishlistAllFromDb() {
     return wishlist.filter(g => g.isWishlist === true);
 }
 
-export type WishlistGameWithConsole = Awaited<ReturnType<typeof getWishlistAllFromDb>>[number];
+export type WishlistGameWithConsole = Awaited<ReturnType<typeof getWishlistAllFromDb>>[number] & Game;
 
 // ─── Insert / upsert ─────────────────────────────────────────────────────────
 

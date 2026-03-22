@@ -19,7 +19,8 @@ const MENU_ITEMS = [
     { id: "status", label: "Status", description: "Check character parameters.", disabled: true },
     { id: "order", label: "Order", description: "Change the party formation.", disabled: true },
     { id: "collection", label: "Collection", description: "Access your complete video game collection.", isMobileCore: true },
-    { id: "wishlist", label: "Wishlist", description: "Browse games on your wish list.", isMobileCore: true },
+    { id: "wishlist", label: "Wishlist", description: "Browse games on your wish list.", isMobileCore: false },
+    { id: "browse", label: "Browse", description: "Browse the global game database.", isMobileCore: false },
     { id: "config", label: "Config", description: "Change window color and game settings." },
 ];
 

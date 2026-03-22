@@ -50,3 +50,6 @@ lint_errors.txt
 lint*.json
 lint*.txt
 vitest_*.json
+
+# Claude Code local settings
+.claude/settings.local.json
