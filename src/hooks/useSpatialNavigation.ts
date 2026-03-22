@@ -118,23 +118,28 @@ function initGlobalListeners() {
             // to nearby but misaligned elements (like wide header bars).
             const orthoPenalty = 10;
 
+            // Guard cone: primary axis must be dominant, but allow a wider reach
+            // (3:1 ratio ≈ 72° cone) so edge elements like search bars and pagination
+            // are reachable from off-centre grid items.
+            const coneRatio = 3;
+
             if (e.key === "ArrowLeft") {
-                if (dx < 0 && Math.abs(dy) <= Math.abs(dx)) {
+                if (dx < 0 && Math.abs(dy) <= Math.abs(dx) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
                 }
             } else if (e.key === "ArrowRight") {
-                if (dx > 0 && Math.abs(dy) <= Math.abs(dx)) {
+                if (dx > 0 && Math.abs(dy) <= Math.abs(dx) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dx) + Math.abs(dy) * orthoPenalty;
                 }
             } else if (e.key === "ArrowUp") {
-                if (dy < 0 && Math.abs(dx) <= Math.abs(dy)) {
+                if (dy < 0 && Math.abs(dx) <= Math.abs(dy) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
                 }
             } else if (e.key === "ArrowDown") {
-                if (dy > 0 && Math.abs(dx) <= Math.abs(dy)) {
+                if (dy > 0 && Math.abs(dx) <= Math.abs(dy) * coneRatio) {
                     isConfiguredDirection = true;
                     distance = Math.abs(dy) + Math.abs(dx) * orthoPenalty;
                 }

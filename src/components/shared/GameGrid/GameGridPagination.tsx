@@ -25,7 +25,7 @@ export function GameGridPagination({ currentPage, totalPages, basePath, queryPar
     const isFocusedNext = focusedElementId === "pagination-next";
 
     return (
-        <div className="flex justify-center items-center gap-4 p-4 border-t-2 border-slate-100/10 bg-[#1A1C29] shrink-0">
+        <div className="flex justify-center items-center gap-4 px-4 py-3 border-t-2 border-slate-100/10 bg-black/20 shrink-0">
             <Link
                 id="pagination-prev"
                 href={`${basePath}?page=${Math.max(1, currentPage - 1)}${queryStr}`}
