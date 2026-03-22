@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback, ReactNode } from "react";
 import { useParams } from "next/navigation";
 import { useNavigation } from "@/contexts/NavigationContext";
+import { setFocusedElementId } from "@/hooks/useSpatialNavigation";
 import { ConsoleDropdownContext } from "./context";
 
 interface RootProps {
@@ -38,8 +39,35 @@ export function Root({ children, onSelect, basePath = "/collection" }: RootProps
         }
     }, [isOpen]);
 
+    // When dropdown opens, move spatial focus to first item
+    useEffect(() => {
+        if (!isOpen) return;
+        requestAnimationFrame(() => {
+            const first = dropdownRef.current?.querySelector<HTMLElement>('[id^="dropdown-"]');
+            if (first) {
+                setFocusedElementId(first.id);
+                first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        });
+    }, [isOpen]);
+
+    // Escape closes dropdown and returns focus to trigger
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                setIsOpen(false);
+                setFocusedElementId('console-dropdown-toggle');
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [isOpen]);
+
     const selectConsole = (shortCode: string) => {
         setIsOpen(false);
+        setFocusedElementId('console-dropdown-toggle');
         if (onSelect) {
             onSelect(shortCode);
         }
@@ -52,7 +80,7 @@ export function Root({ children, onSelect, basePath = "/collection" }: RootProps
 
     return (
         <ConsoleDropdownContext.Provider value={{ isOpen, setIsOpen, currentConsoleId, basePath, selectConsole, selectedItemRef }}>
-            <div className="relative w-full z-30 mb-4" ref={dropdownRef}>
+            <div className="relative w-full z-30 mb-4" ref={dropdownRef} data-nav-root={isOpen ? "console-dropdown" : undefined}>
                 {children}
             </div>
         </ConsoleDropdownContext.Provider>

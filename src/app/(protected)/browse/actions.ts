@@ -1,25 +1,9 @@
 "use server";
 
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { getBrowseGamesByConsoleIdFromDb, addGameToCollectionDb, addGameToWishlistDb } from "@/lib/db/browse";
 import { getAllConsolesFromDb, getConsoleByShortCodeFromDb } from "@/lib/db/consoles";
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-
-async function getUserId() {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-        throw new Error("User not authenticated");
-    }
-    const dbUsers = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
-    if (dbUsers.length === 0) {
-        throw new Error("User not found in database");
-    }
-    return dbUsers[0].id;
-}
+import { getAuthenticatedUserId } from "@/lib/db/users";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function getAllConsoles() {
     return await getAllConsolesFromDb();
@@ -30,20 +14,21 @@ export async function getConsoleByShortCode(shortCode: string) {
 }
 
 export async function getBrowseGamesByConsoleId(consoleId: number, page: number = 1, searchQuery?: string) {
-    const userId = await getUserId();
+    const userId = await getAuthenticatedUserId();
     return await getBrowseGamesByConsoleIdFromDb(consoleId, userId, page, 48, searchQuery);
 }
 
 export async function addGameToCollection(gameId: number, consoleShortCode: string) {
-    const userId = await getUserId();
+    const userId = await getAuthenticatedUserId();
     await addGameToCollectionDb(gameId, userId);
     revalidatePath(`/browse/${consoleShortCode}`);
     revalidatePath(`/collection/${consoleShortCode}`);
+    revalidateTag("home-consoles", "default");
     return { success: true };
 }
 
 export async function addGameToWishlist(gameId: number, consoleShortCode: string) {
-    const userId = await getUserId();
+    const userId = await getAuthenticatedUserId();
     await addGameToWishlistDb(gameId, userId);
     revalidatePath(`/browse/${consoleShortCode}`);
     revalidatePath(`/wishlist/${consoleShortCode}`);

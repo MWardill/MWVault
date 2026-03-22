@@ -20,9 +20,11 @@ vi.mock('next/navigation', () => ({
     })
 }));
 
-// Mock spatial navigation hook
+// Mock spatial navigation hook (include setFocusedElementId as a named export
+// since Root.tsx imports it directly alongside the hook)
 vi.mock('@/hooks/useSpatialNavigation', () => ({
     useSpatialNavigation: vi.fn(),
+    setFocusedElementId: vi.fn(),
 }));
 import { useSpatialNavigation } from '@/hooks/useSpatialNavigation';
 

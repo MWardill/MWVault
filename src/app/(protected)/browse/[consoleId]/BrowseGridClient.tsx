@@ -1,7 +1,7 @@
 "use client";
 
+import { useTransitionRouter } from "next-view-transitions";
 import { GameGrid } from "@/components/shared/GameGrid";
-import { BrowseSearchForm } from "@/components/browse/BrowseSearchForm";
 import { addGameToCollection, addGameToWishlist } from "../actions";
 import type { BrowseGame } from "@/lib/db/browse";
 
@@ -14,12 +14,18 @@ interface BrowseGridClientProps {
 }
 
 export function BrowseGridClient({ games, consoleId, q, page, totalPages }: BrowseGridClientProps) {
+    const router = useTransitionRouter();
+
     return (
         <GameGrid games={games}>
-            {/* Server-side Search Form instead of GameGrid.Search to preserve DB wildcarding */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 border-b-2 border-slate-100/10 bg-[#1A1C29] shrink-0">
-                <BrowseSearchForm consoleId={consoleId} initialQuery={q} />
-            </div>
+            <GameGrid.Search
+                initialValue={q}
+                onSubmit={(query) => {
+                    const params = new URLSearchParams();
+                    if (query) params.set("q", query);
+                    router.push(`/browse/${consoleId}?${params.toString()}`);
+                }}
+            />
 
             {games.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center p-6 bg-black/50">
@@ -54,11 +60,11 @@ export function BrowseGridClient({ games, consoleId, q, page, totalPages }: Brow
                             }
                         ]}
                     />
-                    <GameGrid.Pagination 
-                        currentPage={page} 
-                        totalPages={totalPages} 
-                        basePath={`/browse/${consoleId}`} 
-                        queryParam="q" 
+                    <GameGrid.Pagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        basePath={`/browse/${consoleId}`}
+                        queryParam="q"
                     />
                 </>
             )}

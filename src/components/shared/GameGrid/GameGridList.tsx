@@ -163,7 +163,7 @@ export function GameGridList<T extends Game>({ renderActions, showBadges = false
                                     </div>
 
                                     <p
-                                        className={`font-pixel text-[7px] sm:text-[8px] leading-tight text-center px-0.5 line-clamp-2 w-full jrpg-text-shadow transition-colors ${
+                                        className={`font-pixel text-[7px] sm:text-[8px] leading-tight text-center px-0.5 line-clamp-2 w-full min-h-[2lh] jrpg-text-shadow transition-colors ${
                                             isFocused ? "text-white" : "text-slate-300 group-hover:text-white"
                                         }`}
                                     >

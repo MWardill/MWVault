@@ -2,13 +2,9 @@
 
 import { getAllConsolesFromDb, getConsoleByShortCodeFromDb } from "@/lib/db/consoles";
 import { getWishlistByConsoleIdFromDb, getWishlistAllFromDb } from "@/lib/db/collections";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { addGameToCollectionDb, removeGameFromWishlistDb } from "@/lib/db/browse";
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { getAuthenticatedUserId } from "@/lib/db/users";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function getConsoleByShortCode(shortCode: string) {
     return await getConsoleByShortCodeFromDb(shortCode);
@@ -26,20 +22,8 @@ export async function getWishlistAll() {
     return await getWishlistAllFromDb();
 }
 
-async function getUserId() {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-        throw new Error("User not authenticated");
-    }
-    const dbUsers = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1);
-    if (dbUsers.length === 0) {
-        throw new Error("User not found in database");
-    }
-    return dbUsers[0].id;
-}
-
 export async function addGameToCollectionFromWishlist(gameId: number, consoleShortCode?: string) {
-    const userId = await getUserId();
+    const userId = await getAuthenticatedUserId();
     await addGameToCollectionDb(gameId, userId);
     
     revalidatePath("/wishlist/all");
@@ -47,11 +31,12 @@ export async function addGameToCollectionFromWishlist(gameId: number, consoleSho
         revalidatePath(`/wishlist/${consoleShortCode}`);
         revalidatePath(`/collection/${consoleShortCode}`);
     }
+    revalidateTag("home-consoles", "default");
     return { success: true };
 }
 
 export async function removeGameFromWishlist(gameId: number, consoleShortCode?: string) {
-    const userId = await getUserId();
+    const userId = await getAuthenticatedUserId();
     await removeGameFromWishlistDb(gameId, userId);
     
     revalidatePath("/wishlist/all");
