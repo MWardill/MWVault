@@ -58,7 +58,9 @@ export function GameGridList<T extends Game>({ renderActions, showBadges = false
     const closeGame = useCallback(() => {
         setSelectedGame((prev) => {
             if (prev) {
-                setFocusedElementId(`grid-game-${prev.id}`);
+                // Schedule focus restore outside the state updater to avoid
+                // triggering useSyncExternalStore listeners during render
+                queueMicrotask(() => setFocusedElementId(`grid-game-${prev.id}`));
             }
             return null;
         });

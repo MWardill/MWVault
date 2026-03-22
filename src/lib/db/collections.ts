@@ -5,7 +5,7 @@ import type { Game } from "@/types/game";
 
 // Shared select shape for both collection and wishlist
 const gameSelectShape = {
-    id: gamesCollection.id,
+    id: gamesCollection.gameId,
     title: games.title,
     hasBox: gamesCollection.hasBox,
     hasManual: gamesCollection.hasManual,
