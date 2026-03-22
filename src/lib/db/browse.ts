@@ -78,3 +78,14 @@ export async function addGameToWishlistDb(gameId: number, userId: number) {
         set: { isWishlist: true, updatedAt: new Date() }
     });
 }
+
+export async function removeGameFromWishlistDb(gameId: number, userId: number) {
+    await db.delete(gamesCollection).where(
+        and(
+            eq(gamesCollection.userId, userId),
+            eq(gamesCollection.gameId, gameId),
+            eq(gamesCollection.isWishlist, true)
+        )
+    );
+}
+

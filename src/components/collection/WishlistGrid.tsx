@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { GameDetailPanel, type CollectionGame } from "./GameDetailPanel";
+import { type CollectionGame } from "./GameDetailPanel";
+import { WishlistGameDetailPanel } from "./WishlistGameDetailPanel";
 import { useSpatialNavigation, setFocusedElementId } from "@/hooks/useSpatialNavigation";
 
 // WishlistGame extends CollectionGame with optional console info and market price
@@ -26,13 +27,20 @@ const containerVariants = {
 };
 
 const itemVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+    hidden: { opacity: 0, y: 12, pointerEvents: "none" as const },
+    visible: { opacity: 1, y: 0, pointerEvents: "auto" as const, transition: { duration: 0.2 } },
 };
 
 export function WishlistGrid({ games }: WishlistGridProps) {
     const [selectedGame, setSelectedGame] = useState<WishlistGame | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
     const { focusedElementId } = useSpatialNavigation();
+
+    const filteredGames = useMemo(() => {
+        if (!searchQuery.trim()) return games;
+        const query = searchQuery.toLowerCase();
+        return games.filter(game => game.title.toLowerCase().includes(query));
+    }, [games, searchQuery]);
 
     const openGame = useCallback((game: WishlistGame) => {
         setFocusedElementId(null);
@@ -49,15 +57,36 @@ export function WishlistGrid({ games }: WishlistGridProps) {
     }, []);
 
     return (
-        <>
-            <motion.div
-                className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 p-3"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-            >
-                {games.map((game) => {
-                    const itemId = `wishlist-game-${game.id}`;
+        <div className="flex flex-col flex-1 min-h-0">
+            {/* Search Bar */}
+            <div className="px-4 py-3 border-b-2 border-slate-100/10 flex-none bg-black/20">
+                <input 
+                    type="text" 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search wishlist..."
+                    className="w-full sm:w-64 bg-black/50 border border-slate-600 text-white font-pixel text-xs p-2 focus:outline-none focus:border-sky-400 focus:shadow-[0_0_10px_rgba(56,189,248,0.3)] transition-all"
+                />
+            </div>
+
+            {/* Grid */}
+            <div className="flex-1 overflow-y-auto min-h-0">
+                {filteredGames.length === 0 ? (
+                    <div className="flex items-center justify-center p-8 h-full">
+                        <p className="text-gray-400 font-pixel text-xs leading-relaxed text-center uppercase tracking-wider">
+                            No games found matching "{searchQuery}"
+                        </p>
+                    </div>
+                ) : (
+                    <motion.div
+                        key={searchQuery}
+                        className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2 p-3 pb-8"
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        {filteredGames.map((game) => {
+                            const itemId = `wishlist-game-${game.id}`;
                     const isFocused = focusedElementId === itemId;
 
                     return (
@@ -145,12 +174,14 @@ export function WishlistGrid({ games }: WishlistGridProps) {
                         </motion.button>
                     );
                 })}
-            </motion.div>
+                    </motion.div>
+                )}
+            </div>
 
-            <GameDetailPanel
+            <WishlistGameDetailPanel
                 game={selectedGame}
                 onClose={closeGame}
             />
-        </>
+        </div>
     );
 }
