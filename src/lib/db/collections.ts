@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { games, gamesCollection, consoles } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import type { Game } from "@/types/game";
 
 // Shared select shape for both collection and wishlist
@@ -102,4 +102,13 @@ export async function insertCollectionRecords(records: CollectionInsertInput[]) 
         insertedCount++;
     }
     return insertedCount;
+}
+
+export async function removeGameFromCollectionDb(gameId: number, userId: number) {
+    await db.delete(gamesCollection).where(
+        and(
+            eq(gamesCollection.userId, userId),
+            eq(gamesCollection.gameId, gameId)
+        )
+    );
 }

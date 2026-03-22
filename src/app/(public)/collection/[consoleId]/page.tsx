@@ -30,7 +30,7 @@ export default async function ConsoleCollectionPage({
                     </p>
                 </div>
             ) : (
-                <CollectionGridClient games={collection} />
+                <CollectionGridClient games={collection} consoleId={consoleId} />
             )}
         </div>
     );
