@@ -16,9 +16,9 @@ describe('MobileMenu (Compound)', () => {
     const mockOnClickC = vi.fn();
 
     const mockItems = [
-        { id: 'home', label: 'Home', isMobileCore: true, onClick: mockOnClickA },
-        { id: 'settings', label: 'Settings', isMobileCore: true, disabled: true, onClick: mockOnClickB },
-        { id: 'profile', label: 'Profile Options', isMobileCore: false, onClick: mockOnClickC },
+        { id: 'home', label: 'Home', onClick: mockOnClickA },
+        { id: 'settings', label: 'Settings', disabled: true, onClick: mockOnClickB },
+        { id: 'profile', label: 'Profile Options', onClick: mockOnClickC },
     ];
 
     beforeEach(() => {
@@ -34,23 +34,16 @@ describe('MobileMenu (Compound)', () => {
         vi.clearAllMocks();
     });
 
-    it('renders closed by default and shows all core items', () => {
+    it('renders closed by default with Home icon button', () => {
         render(<MobileMenu items={mockItems} currentRouteId="home" />);
 
-        // Core items should be visible
-        expect(screen.getByText('Home')).toBeInTheDocument();
-        expect(screen.getByText('Settings')).toBeInTheDocument();
+        // Home icon button should be visible
+        const homeBtn = screen.getByLabelText('Home');
+        expect(homeBtn).toBeInTheDocument();
 
-        // The dropdown item shouldn't be rendered since it's closed
+        // Dropdown items shouldn't be rendered since it's closed
+        expect(screen.queryByText('Settings')).not.toBeInTheDocument();
         expect(screen.queryByText('Profile Options')).not.toBeInTheDocument();
-
-        // Check active and disabled styling
-        const homeBtn = screen.getByText('Home').closest('button');
-        const settingsBtn = screen.getByText('Settings').closest('button');
-
-        expect(homeBtn).toHaveAttribute('aria-current', 'page');
-        expect(settingsBtn).toHaveAttribute('disabled');
-        expect(settingsBtn).not.toHaveAttribute('aria-current');
     });
 
     it('toggles open when the hamburger button is clicked', async () => {
@@ -65,7 +58,8 @@ describe('MobileMenu (Compound)', () => {
         // Hamburger button label changes
         expect(screen.getByLabelText('Close menu')).toHaveAttribute('aria-expanded', 'true');
 
-        // Dropdown item should now be visible
+        // All non-home items should now be visible in dropdown
+        expect(screen.getByText('Settings')).toBeInTheDocument();
         expect(screen.getByText('Profile Options')).toBeInTheDocument();
 
         // Click again to close
@@ -76,7 +70,7 @@ describe('MobileMenu (Compound)', () => {
         });
     });
 
-    it('calls onClick and closes menu when a core item is clicked', async () => {
+    it('calls onClick and closes menu when Home button is clicked', async () => {
         const user = userEvent.setup();
         render(<MobileMenu items={mockItems} currentRouteId="home" />);
 
@@ -84,10 +78,8 @@ describe('MobileMenu (Compound)', () => {
         await user.click(screen.getByLabelText('Open menu'));
         expect(screen.getByText('Profile Options')).toBeInTheDocument();
 
-        // Click a core item
-        const homeBtn = screen.getByText('Home').closest('button');
-        if (!homeBtn) throw new Error("Home button not found");
-        await user.click(homeBtn);
+        // Click the Home button
+        await user.click(screen.getByLabelText('Home'));
 
         expect(mockOnClickA).toHaveBeenCalledTimes(1);
 
@@ -95,17 +87,6 @@ describe('MobileMenu (Compound)', () => {
         await waitFor(() => {
             expect(screen.queryByText('Profile Options')).not.toBeInTheDocument();
         });
-    });
-
-    it('does not trigger onClick when a disabled core item is clicked', async () => {
-        const user = userEvent.setup();
-        render(<MobileMenu items={mockItems} currentRouteId="home" />);
-
-        const disabledBtn = screen.getByText('Settings').closest('button');
-        if (!disabledBtn) throw new Error("Settings button not found");
-
-        await user.click(disabledBtn);
-        expect(mockOnClickB).not.toHaveBeenCalled();
     });
 
     it('calls onClick and closes menu when an expandable dropdown item is clicked', async () => {

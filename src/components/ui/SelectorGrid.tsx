@@ -41,7 +41,7 @@ export default function SelectorGrid({ title, items, onSelect, className = "" }:
                                     className="jrpg-selectable flex justify-between items-center group cursor-pointer px-2 py-1 hover:bg-white/5 rounded-sm transition-colors relative z-20"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-6 h-6 flex items-center justify-center transition-opacity ${isFocused ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                        <div className={`w-6 h-6 hidden lg:flex items-center justify-center transition-opacity ${isFocused ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                             <HandPointer className="drop-shadow-md pb-1 pr-1" />
                                         </div>
                                         {item.icon && (

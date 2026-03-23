@@ -97,7 +97,7 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+                        className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm lg:fixed"
                         onClick={onClose}
                         aria-hidden="true"
                     />
@@ -108,19 +108,19 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.88, y: 30 }}
                         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+                        className="absolute inset-0 z-50 flex items-start lg:items-center justify-center pointer-events-none lg:fixed"
                         aria-modal="true"
                         role="dialog"
                         aria-label={game.title}
                     >
                         <div
-                            className="jrpg-panel pointer-events-auto relative w-[92vw] max-w-2xl max-h-[90vh] overflow-y-auto"
+                            className="jrpg-panel pointer-events-auto relative w-full lg:w-[92vw] lg:max-w-2xl lg:max-h-[90vh] overflow-y-auto!"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 id={CLOSE_BTN_ID}
                                 onClick={onClose}
-                                className={`jrpg-selectable absolute top-3 right-3 z-20 font-pixel text-[9px] px-2 py-1 rounded transition-colors tracking-widest uppercase ${
+                                className={`jrpg-selectable absolute! top-3 left-3 z-20! font-pixel text-[9px] px-2 py-1 rounded transition-colors tracking-widest uppercase ${
                                     closeIsFocused
                                         ? "text-white bg-white/25 shadow-[0_0_8px_rgba(125,211,252,0.6)]"
                                         : "text-slate-300 hover:text-white bg-white/10 hover:bg-white/20"
@@ -150,7 +150,7 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                                     </div>
 
                                     <div className="flex-1 min-w-0 flex flex-col gap-3">
-                                        <h2 className="font-pixel text-sm sm:text-base text-white leading-snug jrpg-text-shadow pr-10">
+                                        <h2 className="font-pixel text-sm sm:text-base text-white leading-snug jrpg-text-shadow">
                                             {game.title}
                                         </h2>
 

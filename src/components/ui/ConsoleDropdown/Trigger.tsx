@@ -25,7 +25,7 @@ export function Trigger({ selectedName, selectedIconPath }: { selectedName?: str
             <div className="px-3 py-2 md:px-4 md:py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 md:gap-3">
                     <div className={clsx(
-                        "w-5 h-5 md:w-6 md:h-6 flex-shrink-0 flex items-center justify-center transition-opacity",
+                        "w-5 h-5 md:w-6 md:h-6 flex-shrink-0 hidden lg:flex items-center justify-center transition-opacity",
                         focusedElementId === "console-dropdown-toggle" ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                     )}>
                         <HandPointer className="drop-shadow-md pb-1 pr-1" />

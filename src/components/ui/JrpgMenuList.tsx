@@ -36,7 +36,7 @@ export function JrpgMenuList({ items }: MenuListProps) {
                     >
                         {/* The Floating Hand Cursor */}
                         <div className={clsx(
-                            "w-10 flex-shrink-0 flex justify-center translate-y-[-2px] transition-opacity",
+                            "w-10 flex-shrink-0 hidden lg:flex justify-center translate-y-[-2px] transition-opacity",
                             item.disabled ? "opacity-0" : (isFocused ? "opacity-100" : "opacity-0 group-hover:opacity-100")
                         )}>
                             <HandPointer />
