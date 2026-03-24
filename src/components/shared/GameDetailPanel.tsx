@@ -56,6 +56,10 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
         return () => document.removeEventListener("keydown", handleKey);
     }, [handleKey]);
 
+    useEffect(() => {
+        if (game) setFocusedElementId(CLOSE_BTN_ID);
+    }, [game]);
+
 
 
     const getVariantClasses = (variant: DetailAction["variant"], isFocused: boolean, disabled: boolean) => {
