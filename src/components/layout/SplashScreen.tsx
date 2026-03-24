@@ -13,7 +13,7 @@ export function SplashScreen() {
                     initial={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 pointer-events-none"
+                    className="fixed top-0 left-0 w-screen h-dvh z-[100] flex items-center justify-center bg-gray-900 pointer-events-none"
                     key="splash-screen"
                 >
                     <div className="stippled jrpg-panel flex flex-col items-center justify-center p-6 gap-4 min-w-[200px] border-2 border-slate-100/30">

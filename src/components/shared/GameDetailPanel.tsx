@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useCallback } from "react";
+import { X } from "lucide-react";
 import { useSpatialNavigation, setFocusedElementId } from "@/hooks/useSpatialNavigation";
 import type { Game } from "@/types/game";
 
@@ -17,7 +18,7 @@ interface GameDetailPanelProps<T extends Game> {
     game: T | null;
     onClose: () => void;
     actions?: DetailAction[];
-    children?: React.ReactNode; 
+    children?: React.ReactNode;
 }
 
 function StatusDot({ active, label }: { active: boolean | null | undefined; label: string }) {
@@ -25,11 +26,10 @@ function StatusDot({ active, label }: { active: boolean | null | undefined; labe
     return (
         <div className="flex items-center gap-2">
             <span
-                className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                    active
-                        ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"
-                        : "bg-rose-500/50"
-                }`}
+                className={`w-3 h-3 rounded-full flex-shrink-0 ${active
+                    ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)]"
+                    : "bg-rose-500/50"
+                    }`}
             />
             <span className="font-pixel text-[9px] text-slate-200 tracking-wider uppercase leading-none pt-[2px]">
                 {label}
@@ -56,11 +56,7 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
         return () => document.removeEventListener("keydown", handleKey);
     }, [handleKey]);
 
-    useEffect(() => {
-        if (game) {
-            setFocusedElementId(CLOSE_BTN_ID);
-        }
-    }, [game]);
+
 
     const getVariantClasses = (variant: DetailAction["variant"], isFocused: boolean, disabled: boolean) => {
         if (disabled) {
@@ -68,11 +64,11 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
         }
         switch (variant) {
             case "success":
-                return isFocused 
+                return isFocused
                     ? "bg-emerald-600 border-white text-white shadow-[0_0_12px_rgba(52,211,153,0.8)]"
                     : "bg-emerald-800/80 border-emerald-500 text-emerald-100 hover:bg-emerald-700 hover:border-emerald-400 shadow-[0_4px_10px_rgba(0,0,0,0.5)]";
             case "danger":
-                return isFocused 
+                return isFocused
                     ? "bg-red-600 border-white text-white shadow-[0_0_12px_rgba(239,68,68,0.8)]"
                     : "bg-red-900/80 border-red-500 text-red-100 hover:bg-red-800 hover:border-red-400 shadow-[0_4px_10px_rgba(0,0,0,0.5)]";
             case "warning":
@@ -97,7 +93,7 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+                        className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm lg:fixed"
                         onClick={onClose}
                         aria-hidden="true"
                     />
@@ -108,28 +104,15 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.88, y: 30 }}
                         transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+                        className="absolute inset-0 z-50 flex items-start lg:items-center justify-center pointer-events-none lg:fixed"
                         aria-modal="true"
                         role="dialog"
                         aria-label={game.title}
                     >
                         <div
-                            className="jrpg-panel pointer-events-auto relative w-[92vw] max-w-2xl max-h-[90vh] overflow-y-auto"
+                            className="jrpg-panel pointer-events-auto relative w-full lg:w-[92vw] lg:max-w-2xl lg:max-h-[90vh] overflow-y-auto!"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <button
-                                id={CLOSE_BTN_ID}
-                                onClick={onClose}
-                                className={`jrpg-selectable absolute top-3 right-3 z-20 font-pixel text-[9px] px-2 py-1 rounded transition-colors tracking-widest uppercase ${
-                                    closeIsFocused
-                                        ? "text-white bg-white/25 shadow-[0_0_8px_rgba(125,211,252,0.6)]"
-                                        : "text-slate-300 hover:text-white bg-white/10 hover:bg-white/20"
-                                }`}
-                                aria-label="Close panel"
-                            >
-                                {closeIsFocused ? "▶ " : ""}✕ Close
-                            </button>
-
                             <div className="p-6 pt-7 flex flex-col gap-6">
                                 <div className="flex gap-5 items-start">
                                     <div className="flex-shrink-0 w-28 h-28 sm:w-36 sm:h-36 bg-black/40 border-2 border-white/20 rounded-sm overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
@@ -150,7 +133,7 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                                     </div>
 
                                     <div className="flex-1 min-w-0 flex flex-col gap-3">
-                                        <h2 className="font-pixel text-sm sm:text-base text-white leading-snug jrpg-text-shadow pr-10">
+                                        <h2 className="font-pixel text-sm sm:text-base text-white leading-snug jrpg-text-shadow">
                                             {game.title}
                                         </h2>
 
@@ -264,10 +247,25 @@ export function GameDetailPanel<T extends Game>({ game, onClose, actions, childr
                                         </p>
                                     </div>
                                 )}
-                                
+
                                 {children}
 
                             </div>
+
+                            <button
+                                id={CLOSE_BTN_ID}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onClose();
+                                }}
+                                className={`jrpg-selectable absolute! top-2 right-2 pointer-events-auto z-[100]! p-2 flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-none ${closeIsFocused
+                                    ? "text-white drop-shadow-[0_0_15px_rgba(255,255,255,1)] scale-125"
+                                    : "text-slate-400 hover:text-white hover:drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]"
+                                    }`}
+                                aria-label="Close panel"
+                            >
+                                <X size={26} strokeWidth={3} />
+                            </button>
                         </div>
                     </motion.div>
                 </>

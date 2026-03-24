@@ -13,14 +13,14 @@ import { useSplash } from "@/contexts/SplashContext";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 
 const MENU_ITEMS = [
-    { id: "home", label: "Home", description: "Use or sort acquired items.", isMobileCore: true },
+    { id: "home", label: "Home", description: "Use or sort acquired items." },
     { id: "magic", label: "Magic", description: "Cast recovery magic or view spell lists.", disabled: true },
     { id: "equip", label: "Equip", description: "Change character weapons and armor.", disabled: true },
     { id: "status", label: "Status", description: "Check character parameters.", disabled: true },
     { id: "order", label: "Order", description: "Change the party formation.", disabled: true },
-    { id: "collection", label: "Collection", description: "Access your complete video game collection.", isMobileCore: true },
-    { id: "wishlist", label: "Wishlist", description: "Browse games on your wish list.", isMobileCore: false },
-    { id: "browse", label: "Browse", description: "Browse the global game database.", isMobileCore: false },
+    { id: "collection", label: "Collection", description: "Access your complete video game collection." },
+    { id: "wishlist", label: "Wishlist", description: "Browse games on your wish list." },
+    { id: "browse", label: "Browse", description: "Browse the global game database." },
     { id: "config", label: "Config", description: "Change window color and game settings." },
 ];
 

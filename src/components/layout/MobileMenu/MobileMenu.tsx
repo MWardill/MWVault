@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { JrpgMenuList } from "@/components/ui/JrpgMenuList";
 import { Root } from "./Root";
 import { TopNav } from "./TopNav";
-import { CoreItem } from "./CoreItem";
 import { Expandable } from "./Expandable";
 import { useMobileMenu } from "./context";
 
@@ -13,13 +12,26 @@ export interface MenuItemType {
     label: string;
     disabled?: boolean;
     onClick?: () => void;
-    isMobileCore?: boolean;
     description?: string;
 }
 
 export interface MobileMenuProps {
     items: MenuItemType[];
     currentRouteId: string;
+}
+
+function HomeButton({ isActive, onClick }: { isActive: boolean; onClick?: () => void }) {
+    const { setIsOpen } = useMobileMenu();
+    return (
+        <button
+            type="button"
+            aria-label="Home"
+            onClick={() => { onClick?.(); setIsOpen(false); }}
+            className={`py-2 px-4 transition-colors flex items-center justify-center hover:text-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none ${isActive ? 'text-white' : 'text-gray-400'}`}
+        >
+            Home
+        </button>
+    );
 }
 
 function MobileMenuDropdown({ items }: { items: MenuItemType[] }) {
@@ -38,21 +50,15 @@ function MobileMenuDropdown({ items }: { items: MenuItemType[] }) {
 }
 
 export function MobileMenuMain({ items, currentRouteId }: MobileMenuProps) {
-    const coreItems = useMemo(() => items.filter((item) => item.isMobileCore), [items]);
-    const dropdownItems = useMemo(() => items.filter((item) => !item.isMobileCore), [items]);
+    const homeItem = items.find(i => i.id === 'home');
+    const dropdownItems = useMemo(() => items.filter(i => i.id !== 'home'), [items]);
 
     return (
         <Root>
             <TopNav>
-                {coreItems.map((item) => (
-                    <CoreItem
-                        key={item.id}
-                        label={item.label}
-                        isActive={currentRouteId === item.id}
-                        disabled={item.disabled}
-                        onClick={item.onClick}
-                    />
-                ))}
+                {homeItem && (
+                    <HomeButton isActive={currentRouteId === 'home'} onClick={homeItem.onClick} />
+                )}
             </TopNav>
             <Expandable>
                 <MobileMenuDropdown items={dropdownItems} />
@@ -64,11 +70,9 @@ export function MobileMenuMain({ items, currentRouteId }: MobileMenuProps) {
 export const MobileMenu = MobileMenuMain as typeof MobileMenuMain & {
     Root: typeof Root;
     TopNav: typeof TopNav;
-    CoreItem: typeof CoreItem;
     Expandable: typeof Expandable;
 };
 
 MobileMenu.Root = Root;
 MobileMenu.TopNav = TopNav;
-MobileMenu.CoreItem = CoreItem;
 MobileMenu.Expandable = Expandable;

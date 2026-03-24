@@ -28,7 +28,7 @@ export function Item({ id, shortCode, name, iconPath }: { id: number, shortCode:
             )}
         >
             <div className={clsx(
-                "w-6 h-6 flex items-center justify-center transition-opacity",
+                "w-6 h-6 hidden lg:flex items-center justify-center transition-opacity",
                 isFocused ? "opacity-100" : "opacity-0 group-hover:opacity-100"
             )}>
                 <HandPointer className="drop-shadow-md pb-1 pr-1" />
