@@ -134,3 +134,34 @@ SELECT
     true, -- has_manual
     8     -- condition_rating
 FROM inserted_games ig;
+
+-- 5. Pricing Runs
+-- Tracks when a game was last priced
+CREATE TABLE IF NOT EXISTS pricing_runs (
+    id SERIAL PRIMARY KEY,
+    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    last_priced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_pricing_run_game UNIQUE (game_id)
+);
+
+-- 6. Price History
+-- Tracks individual pricing events over time
+CREATE TABLE IF NOT EXISTS price_history (
+    id SERIAL PRIMARY KEY,
+    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    price DECIMAL(10, 2),
+    currency VARCHAR(10) DEFAULT 'GBP',
+    sample_size INTEGER,
+    priced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Price Report
+-- Denormalized summary of current price and price movement
+CREATE TABLE IF NOT EXISTS price_report (
+    id SERIAL PRIMARY KEY,
+    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    current_price DECIMAL(10, 2),
+    price_move VARCHAR(20), -- 'up', 'down', 'neutral', 'new'
+    last_calculated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_price_report_game UNIQUE (game_id)
+);
