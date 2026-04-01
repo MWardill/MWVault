@@ -14,17 +14,13 @@ import { SplashScreen } from "@/components/layout/SplashScreen";
 
 const MENU_ITEMS = [
     { id: "home", label: "Home", description: "Use or sort acquired items." },
-    { id: "magic", label: "Magic", description: "Cast recovery magic or view spell lists.", disabled: true },
-    { id: "equip", label: "Equip", description: "Change character weapons and armor.", disabled: true },
-    { id: "status", label: "Status", description: "Check character parameters.", disabled: true },
-    { id: "order", label: "Order", description: "Change the party formation.", disabled: true },
     { id: "collection", label: "Collection", description: "Access your complete video game collection." },
     { id: "wishlist", label: "Wishlist", description: "Browse games on your wish list." },
     { id: "browse", label: "Browse", description: "Browse the global game database." },
     { id: "config", label: "Config", description: "Change window color and game settings." },
 ];
 
-export default function AppShell({ children }: { children: ReactNode }) {
+export default function AppShell({ children, ownedGameCount = 0 }: { children: ReactNode; ownedGameCount?: number }) {
     const { navigate, transitionType } = useNavigation();
     const pathname = usePathname();
     const currentRouteId = pathname?.split("/")[1] || "home";
@@ -103,7 +99,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                                 <div className="w-5 h-5 rounded-full bg-gray-400 bg-opacity-30 border-2 border-gray-300 flex items-center justify-center text-[10px] font-bold text-gray-200 drop-shadow-md">
                                     G
                                 </div>
-                                <span className="text-xl tracking-widest text-gray-100 jrpg-text-shadow leading-none">257G</span>
+                                <span className="text-xl tracking-widest text-gray-100 jrpg-text-shadow leading-none">{ownedGameCount}G</span>
                             </div>
                         </div>
                     </FloatingPanel>

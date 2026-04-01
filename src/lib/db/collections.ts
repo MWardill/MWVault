@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { games, gamesCollection, consoles, priceReport } from "@/lib/db/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, or, isNull, count } from "drizzle-orm";
 import type { Game } from "@/types/game";
 
 // Shared select shape for both collection and wishlist
@@ -69,6 +69,24 @@ export async function getWishlistAllFromDb() {
 }
 
 export type WishlistGameWithConsole = Awaited<ReturnType<typeof getWishlistAllFromDb>>[number] & Game;
+
+// ─── Counts ──────────────────────────────────────────────────────────────────
+
+export async function getOwnedGameCountFromDb(userId: number): Promise<number> {
+    const result = await db
+        .select({ count: count() })
+        .from(gamesCollection)
+        .where(
+            and(
+                eq(gamesCollection.userId, userId),
+                or(
+                    eq(gamesCollection.isWishlist, false),
+                    isNull(gamesCollection.isWishlist)
+                )
+            )
+        );
+    return result[0]?.count ?? 0;
+}
 
 // ─── Insert / upsert ─────────────────────────────────────────────────────────
 

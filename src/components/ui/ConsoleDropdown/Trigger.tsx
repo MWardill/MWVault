@@ -7,10 +7,13 @@ import { useSpatialNavigation } from "@/hooks/useSpatialNavigation";
 import { useConsoleDropdown } from "./context";
 
 export function Trigger({ selectedName, selectedIconPath }: { selectedName?: string, selectedIconPath?: string | null }) {
-    const { isOpen, setIsOpen } = useConsoleDropdown();
+    const { isOpen, setIsOpen, openDropdown } = useConsoleDropdown();
     const { focusedElementId } = useSpatialNavigation();
 
-    const toggleDropdown = () => setIsOpen((prev) => !prev);
+    const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (isOpen) setIsOpen(false);
+        else openDropdown(e.detail === 0);
+    };
 
     return (
         <button
@@ -20,7 +23,7 @@ export function Trigger({ selectedName, selectedIconPath }: { selectedName?: str
                 "w-full text-left jrpg-panel jrpg-selectable relative cursor-pointer group transition-[border-radius,border-width,padding] duration-200 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none",
                 isOpen ? "rounded-b-none border-b-0 pb-1" : "pb-1"
             )}
-            onClick={toggleDropdown}
+            onClick={handleToggle}
         >
             <div className="px-3 py-2 md:px-4 md:py-2 flex items-center justify-between">
                 <div className="flex items-center gap-2 md:gap-3">

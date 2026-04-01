@@ -63,8 +63,8 @@ describe('AppShell Integration', () => {
         // It should parse /collection/snes -> currentRouteId = "collection"
         expect(mockMenu).toHaveAttribute('data-route', 'collection');
 
-        // It should have exactly 9 items passed to it (Home, Magic, Equip, Status, Order, Collection, Wishlist, Browse, Config)
-        expect(mockMenu).toHaveAttribute('data-item-count', '9');
+        // It should have exactly 5 items passed to it (Home, Collection, Wishlist, Browse, Config)
+        expect(mockMenu).toHaveAttribute('data-item-count', '5');
 
         expect(MobileMenu).toHaveBeenCalled();
     });

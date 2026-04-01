@@ -7,6 +7,8 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { SplashProvider } from "@/contexts/SplashContext";
 import { NavigationProvider } from "@/contexts/NavigationContext";
 import { LoadingToast } from "@/components/ui/LoadingToast";
+import { getUserIdByEmailFromDb } from "@/lib/db/users";
+import { getOwnedGameCountFromDb } from "@/lib/db/collections";
 
 
 const pressStart2P = Press_Start_2P({
@@ -37,11 +39,17 @@ export const metadata: Metadata = {
   keywords: ["video games", "game collection", "retro gaming", "MWVault"],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let ownedGameCount = 0;
+  const userId = await getUserIdByEmailFromDb(process.env.VAULT_OWNER_EMAIL ?? "");
+  if (userId) {
+    ownedGameCount = await getOwnedGameCountFromDb(userId);
+  }
+
   return (
     <ViewTransitions>
       <html lang="en" className={`${pressStart2P.variable} ${shareTechMono.variable}`}>
@@ -50,7 +58,7 @@ export default function RootLayout({
             <AuthProvider>
               <SplashProvider>
                 <LoadingToast />
-                <AppShell>{children}</AppShell>
+                <AppShell ownedGameCount={ownedGameCount}>{children}</AppShell>
               </SplashProvider>
             </AuthProvider>
           </NavigationProvider>

@@ -15,3 +15,8 @@ export async function getAuthenticatedUserId() {
     }
     return dbUsers[0].id;
 }
+
+export async function getUserIdByEmailFromDb(email: string): Promise<number | null> {
+    const result = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
+    return result[0]?.id ?? null;
+}

@@ -15,6 +15,7 @@ interface RootProps {
 
 export function Root({ children, onSelect, basePath = "/collection" }: RootProps) {
     const [isOpen, setIsOpen] = useState(false);
+    const openedWithKeyboard = useRef(false);
     const { navigate } = useNavigation();
     const params = useParams();
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -39,9 +40,15 @@ export function Root({ children, onSelect, basePath = "/collection" }: RootProps
         }
     }, [isOpen]);
 
-    // When dropdown opens, move spatial focus to first item
+    const openDropdown = useCallback((byKeyboard: boolean) => {
+        openedWithKeyboard.current = byKeyboard;
+        setIsOpen(true);
+    }, []);
+
+    // When dropdown opens via keyboard, move spatial focus to first item
     useEffect(() => {
         if (!isOpen) return;
+        if (!openedWithKeyboard.current) return;
         requestAnimationFrame(() => {
             const first = dropdownRef.current?.querySelector<HTMLElement>('[id^="dropdown-"]');
             if (first) {
@@ -79,7 +86,7 @@ export function Root({ children, onSelect, basePath = "/collection" }: RootProps
     };
 
     return (
-        <ConsoleDropdownContext.Provider value={{ isOpen, setIsOpen, currentConsoleId, basePath, selectConsole, selectedItemRef }}>
+        <ConsoleDropdownContext.Provider value={{ isOpen, setIsOpen, openDropdown, currentConsoleId, basePath, selectConsole, selectedItemRef }}>
             <div className="relative w-full z-30 mb-4" ref={dropdownRef} data-nav-root={isOpen ? "console-dropdown" : undefined}>
                 {children}
             </div>
