@@ -4,6 +4,7 @@ import { useTransitionRouter } from "next-view-transitions";
 import { GameGrid } from "@/components/shared/GameGrid";
 import { addGameToCollection, addGameToWishlist } from "../actions";
 import type { BrowseGame } from "@/lib/db/browse";
+import { useSession } from "next-auth/react";
 
 interface BrowseGridClientProps {
     games: BrowseGame[];
@@ -15,6 +16,7 @@ interface BrowseGridClientProps {
 
 export function BrowseGridClient({ games, consoleId, q, page, totalPages }: BrowseGridClientProps) {
     const router = useTransitionRouter();
+    const { status } = useSession();
 
     return (
         <GameGrid games={games}>
@@ -37,7 +39,7 @@ export function BrowseGridClient({ games, consoleId, q, page, totalPages }: Brow
                 <>
                     <GameGrid.List<BrowseGame>
                         showBadges={true}
-                        renderActions={(game, closeGame) => [
+                        renderActions={status === "authenticated" ? (game, closeGame) => [
                             {
                                 id: "btn-add-collection",
                                 label: game.isOwned ? "In Collection" : "Add to Collection",
@@ -58,7 +60,7 @@ export function BrowseGridClient({ games, consoleId, q, page, totalPages }: Brow
                                     closeGame();
                                 }
                             }
-                        ]}
+                        ] : undefined}
                     />
                     <GameGrid.Pagination
                         currentPage={page}

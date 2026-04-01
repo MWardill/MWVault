@@ -3,6 +3,7 @@
 import { GameGrid } from "@/components/shared/GameGrid";
 import type { Game } from "@/types/game";
 import { removeGameFromCollection } from "../actions";
+import { useSession } from "next-auth/react";
 
 interface CollectionGridClientProps {
     games: Game[];
@@ -10,10 +11,12 @@ interface CollectionGridClientProps {
 }
 
 export function CollectionGridClient({ games, consoleId }: CollectionGridClientProps) {
+    const { status } = useSession();
+
     return (
         <GameGrid games={games}>
             <GameGrid.List<Game> 
-                renderActions={(game, closeGame) => [
+                renderActions={status === "authenticated" ? (game, closeGame) => [
                     {
                         id: "btn-remove-collection",
                         label: "Remove from Collection",
@@ -23,7 +26,7 @@ export function CollectionGridClient({ games, consoleId }: CollectionGridClientP
                             closeGame();
                         }
                     }
-                ]}
+                ] : undefined}
             />
         </GameGrid>
     );

@@ -3,6 +3,7 @@
 import { GameGrid } from "@/components/shared/GameGrid";
 import { addGameToCollectionFromWishlist, removeGameFromWishlist } from "../actions";
 import type { WishlistGame } from "@/lib/db/collections";
+import { useSession } from "next-auth/react";
 
 interface WishlistConsoleClientProps {
     wishlist: WishlistGame[];
@@ -10,11 +11,13 @@ interface WishlistConsoleClientProps {
 }
 
 export function WishlistConsoleClient({ wishlist, consoleId }: WishlistConsoleClientProps) {
+    const { status } = useSession();
+
     return (
         <GameGrid games={wishlist}>
             <GameGrid.Search />
             <GameGrid.List<WishlistGame> 
-                renderActions={(game, closeGame) => [
+                renderActions={status === "authenticated" ? (game, closeGame) => [
                     {
                         id: "btn-add-collection",
                         label: "Add to Collection",
@@ -33,7 +36,7 @@ export function WishlistConsoleClient({ wishlist, consoleId }: WishlistConsoleCl
                             closeGame();
                         }
                     }
-                ]}
+                ] : undefined}
             />
         </GameGrid>
     );
