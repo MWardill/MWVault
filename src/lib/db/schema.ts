@@ -83,3 +83,22 @@ export const gamesCollectionRelations = relations(gamesCollection, ({ one }) => 
         references: [games.id],
     }),
 }));
+
+// 7. Price Report
+export const priceReport = pgTable('price_report', {
+    id: serial('id').primaryKey(),
+    gameId: integer('game_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
+    currentPrice: decimal('current_price', { precision: 10, scale: 2 }),
+    priceMove: varchar('price_move', { length: 20 }),
+    lastCalculatedAt: timestamp('last_calculated_at', { withTimezone: true, mode: 'date' }).defaultNow(),
+}, (t) => [
+    uniqueIndex('uq_price_report_game').on(t.gameId)
+]);
+
+export const priceReportRelations = relations(priceReport, ({ one }) => ({
+    game: one(games, {
+        fields: [priceReport.gameId],
+        references: [games.id],
+    }),
+}));
+

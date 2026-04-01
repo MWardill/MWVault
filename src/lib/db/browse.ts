@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { games, gamesCollection } from "@/lib/db/schema";
+import { games, gamesCollection, priceReport } from "@/lib/db/schema";
 import { eq, and, asc, count, ilike } from "drizzle-orm";
 
 export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId: number, page: number = 1, pageSize: number = 48, searchQuery?: string) {
@@ -24,7 +24,7 @@ export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId:
             summary: games.summary,
             developer: games.developer,
             releaseDate: games.releaseDate,
-            currentPrice: games.currentPrice,
+            currentPrice: priceReport.currentPrice,
             isWishlist: gamesCollection.isWishlist,
             isInCollection: gamesCollection.id
         })
@@ -36,6 +36,7 @@ export async function getBrowseGamesByConsoleIdFromDb(consoleId: number, userId:
                 eq(gamesCollection.userId, userId)
             )
         )
+        .leftJoin(priceReport, eq(games.id, priceReport.gameId))
         .where(baseWhere)
         .orderBy(asc(games.title))
         .limit(pageSize)

@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { games, gamesCollection, consoles } from "@/lib/db/schema";
+import { games, gamesCollection, consoles, priceReport } from "@/lib/db/schema";
 import { eq, desc, and } from "drizzle-orm";
 import type { Game } from "@/types/game";
 
@@ -18,7 +18,7 @@ const gameSelectShape = {
     summary: games.summary,
     developer: games.developer,
     releaseDate: games.releaseDate,
-    currentPrice: games.currentPrice,
+    currentPrice: priceReport.currentPrice,
 };
 
 // ─── Collection (owned games only) ───────────────────────────────────────────
@@ -28,6 +28,7 @@ export async function getCollectionByConsoleIdFromDb(consoleId: number) {
         .select(gameSelectShape)
         .from(gamesCollection)
         .innerJoin(games, eq(gamesCollection.gameId, games.id))
+        .leftJoin(priceReport, eq(games.id, priceReport.gameId))
         .where(eq(games.consoleId, consoleId))
         .orderBy(games.title);
 
@@ -42,8 +43,9 @@ export async function getWishlistByConsoleIdFromDb(consoleId: number) {
         .select(gameSelectShape)
         .from(gamesCollection)
         .innerJoin(games, eq(gamesCollection.gameId, games.id))
+        .leftJoin(priceReport, eq(games.id, priceReport.gameId))
         .where(eq(games.consoleId, consoleId))
-        .orderBy(games.currentPrice ? desc(games.currentPrice) : games.title);
+        .orderBy(priceReport.currentPrice ? desc(priceReport.currentPrice) : games.title);
 
     return wishlist.filter(g => g.isWishlist === true);
 }
@@ -60,6 +62,7 @@ export async function getWishlistAllFromDb() {
         .from(gamesCollection)
         .innerJoin(games, eq(gamesCollection.gameId, games.id))
         .innerJoin(consoles, eq(games.consoleId, consoles.id))
+        .leftJoin(priceReport, eq(games.id, priceReport.gameId))
         .orderBy(games.title);
 
     return wishlist.filter(g => g.isWishlist === true);

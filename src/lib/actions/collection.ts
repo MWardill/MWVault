@@ -40,11 +40,7 @@ const PLATFORM_MAP: Record<string, string> = {
     "PC":                        "pc",
 };
 
-function parsePrice(raw: string | undefined): string | null {
-    if (!raw || raw === "?" || raw === "-1.0" || raw === "-1") return null;
-    const n = parseFloat(raw);
-    return isNaN(n) || n < 0 ? null : n.toFixed(2);
-}
+
 
 export async function importCollectionFromCsv(formData: FormData) {
     // 1. Authenticate user
@@ -119,8 +115,7 @@ export async function importCollectionFromCsv(formData: FormData) {
             if (ownership === "CIB" || ownership === "CIB+" || ownership === "Boxed") hasBox = true;
             if (ownership === "CIB" || ownership === "CIB+") hasManual = true;
 
-            // Price: use PriceCIB as the market reference price
-            const priceCib = parsePrice(row["PriceCIB"]);
+
 
             // Find game in DB by title + console (case-insensitive)
             const matchingGames = await db
@@ -132,13 +127,7 @@ export async function importCollectionFromCsv(formData: FormData) {
             if (matchingGames.length > 0) {
                 const game = matchingGames[0];
 
-                // Update current_price on the games row if we have price data
-                if (priceCib && priceCib !== game.currentPrice) {
-                    await db
-                        .update(games)
-                        .set({ currentPrice: priceCib })
-                        .where(eq(games.id, game.id));
-                }
+                // The import script now leaves current_price to be updated by the periodic pricing pipeline
 
                 recordsToInsert.push({
                     userId,
